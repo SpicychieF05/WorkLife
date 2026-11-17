@@ -2,6 +2,14 @@ export type Character = 'boy' | 'girl';
 
 export type Track = 'fresher' | 'associate' | 'expert';
 
+export type CareerDomain =
+  | 'analyst'
+  | 'developer'
+  | 'devops'
+  | 'ai'
+  | 'qa'
+  | 'product';
+
 export type GameMode = 'IDLE' | 'PLAYING' | 'PAUSED' | 'EXIT' | 'RETIRED';
 
 export type CompanyTier = 'MASS' | 'MNC' | 'CONSULTING' | 'FAANG';
@@ -42,6 +50,7 @@ export interface FlightState {
   character: Character;
   candidateName: string;
   track: Track;
+  domain: CareerDomain;
   age: number;               // 22.0 -> 60.0
   elapsedSeconds: number;    // 0.0 -> 75.0
   score: number;             // companies cleared
@@ -64,6 +73,7 @@ export interface CareerRecord {
   character: Character;
   candidateName: string;
   track: Track;
+  domain?: CareerDomain;
   exitAge: number;
   companiesCleared: number;
   finalLPA: number;

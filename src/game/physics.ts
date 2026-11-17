@@ -1,5 +1,6 @@
-import { Bird, Character, CorporateEvent, FlightState, Pipe, Track } from '../types/game';
+import { Bird, CareerDomain, Character, CorporateEvent, FlightState, Pipe, Track } from '../types/game';
 import { getCompanyForProgression } from './companies';
+import { DEFAULT_CAREER_DOMAIN, getRoleTitleForProgression } from './domains';
 import { sound } from './sound';
 import { CORPORATE_EVENTS } from './events';
 import { Particle } from './canvasRenderer';
@@ -30,13 +31,12 @@ export class GameEngine {
     expert: 24.0
   };
 
-  private readonly trackBaseRoles: Record<Track, string> = {
-    fresher: 'Graduate Trainee',
-    associate: 'Software Engineer',
-    expert: 'Lead Architect'
-  };
-
-  constructor(character: Character, track: Track, candidateName: string = '') {
+  constructor(
+    character: Character,
+    track: Track,
+    candidateName: string = '',
+    domain: CareerDomain = DEFAULT_CAREER_DOMAIN
+  ) {
     this.bird = {
       x: 140,
       y: 280,
@@ -54,12 +54,13 @@ export class GameEngine {
       character,
       candidateName: resolvedName,
       track,
+      domain,
       age: 22.0,
       elapsedSeconds: 0,
       score: 0,
       packageLPA: this.trackBaseLPA[track],
       currentCompany: firstCompany,
-      targetRole: this.trackBaseRoles[track],
+      targetRole: getRoleTitleForProgression(domain, track, 22.0),
       cause: null
     };
   }
@@ -296,26 +297,11 @@ export class GameEngine {
   }
 
   private updateRoleTitle(): void {
-    const age = this.flight.age;
-    const track = this.flight.track;
-
-    if (track === 'fresher') {
-      if (age < 26) this.flight.targetRole = 'Junior Analyst';
-      else if (age < 32) this.flight.targetRole = 'Systems Engineer';
-      else if (age < 42) this.flight.targetRole = 'Senior Consultant';
-      else if (age < 52) this.flight.targetRole = 'Delivery Manager';
-      else this.flight.targetRole = 'Vice President (Delivery)';
-    } else if (track === 'associate') {
-      if (age < 30) this.flight.targetRole = 'Senior Software Engineer';
-      else if (age < 38) this.flight.targetRole = 'Technical Lead';
-      else if (age < 48) this.flight.targetRole = 'Principal Architect';
-      else this.flight.targetRole = 'Director of Engineering';
-    } else {
-      if (age < 32) this.flight.targetRole = 'Staff Engineer';
-      else if (age < 42) this.flight.targetRole = 'Engineering Manager';
-      else if (age < 52) this.flight.targetRole = 'VP of Technology';
-      else this.flight.targetRole = 'Distinguished Fellow';
-    }
+    this.flight.targetRole = getRoleTitleForProgression(
+      this.flight.domain,
+      this.flight.track,
+      this.flight.age
+    );
   }
 
   private checkCorporateEvents(): void {

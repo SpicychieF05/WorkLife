@@ -2,6 +2,7 @@ import React from 'react';
 import { BestScores, CareerRecord } from '../types/game';
 import { formatPackage } from '../game/companies';
 import { X, Trophy, Briefcase, Trash2 } from 'lucide-react';
+import { CandidatePortraitSvg } from './CandidateVectorArt';
 
 interface CareerLogbookModalProps {
   bestScores: BestScores;
@@ -101,9 +102,7 @@ export const CareerLogbookModal: React.FC<CareerLogbookModalProps> = ({
                     className="p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors flex items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-xl">
-                        {record.character === 'boy' ? '👦' : '👩'}
-                      </span>
+                      <CandidatePortraitSvg character={record.character} size={34} className="rounded-lg shrink-0" />
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-bold text-slate-900 truncate">

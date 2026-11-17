@@ -1,5 +1,6 @@
 import React from 'react';
-import { Character, Track, BestScores } from '../types/game';
+import { CareerDomain, Character, Track, BestScores } from '../types/game';
+import { CAREER_DOMAINS } from '../game/domains';
 import { Volume2, VolumeX, Maximize2, Trophy, History, Play, User } from 'lucide-react';
 import { CandidatePortraitSvg, CareerStageIllustration } from './CandidateVectorArt';
 
@@ -7,11 +8,13 @@ interface StartScreenProps {
   character: Character;
   candidateName: string;
   track: Track;
+  domain: CareerDomain;
   bestScores: BestScores;
   soundEnabled: boolean;
   onSelectCharacter: (c: Character) => void;
   onChangeCandidateName: (name: string) => void;
   onSelectTrack: (t: Track) => void;
+  onSelectDomain: (d: CareerDomain) => void;
   onStart: () => void;
   onToggleSound: () => void;
   onToggleFullscreen: () => void;
@@ -48,11 +51,13 @@ export const StartScreen: React.FC<StartScreenProps> = ({
   character,
   candidateName,
   track,
+  domain,
   bestScores,
   soundEnabled,
   onSelectCharacter,
   onChangeCandidateName,
   onSelectTrack,
+  onSelectDomain,
   onStart,
   onToggleSound,
   onToggleFullscreen,
@@ -62,10 +67,10 @@ export const StartScreen: React.FC<StartScreenProps> = ({
 
   return (
     <div className="absolute inset-0 z-30 overflow-y-auto bg-[#eef0f5] text-slate-800">
-      <div className="min-h-full w-full flex items-center justify-center p-3 sm:p-6 lg:p-8">
-        <div className="w-full max-w-6xl bg-white border border-slate-200 shadow-xl rounded-2xl p-4 sm:p-6 lg:p-7 flex flex-col gap-5">
+      <div className="min-h-full w-full flex items-center justify-center p-3 sm:p-5 lg:p-6">
+        <div className="w-full max-w-6xl bg-white border border-slate-200 shadow-xl rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
           {/* Top Bar */}
-          <header className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3.5">
+          <header className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <img
                 src="/assets/favicon.svg"
@@ -113,20 +118,21 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           </header>
 
           {/* Main 2-Column Hero Stage & Career Console */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-7 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-stretch">
             {/* Left Column: Animated Vector Skyline & Live Candidate Flight Preview */}
             <div className="lg:col-span-6 flex flex-col">
               <CareerStageIllustration
                 character={character}
                 candidateName={candidateName}
                 track={track}
+                domain={domain}
               />
             </div>
 
             {/* Right Column: Onboarding Controls & Launch */}
-            <div className="lg:col-span-6 flex flex-col justify-between gap-4">
+            <div className="lg:col-span-6 flex flex-col justify-between gap-3.5">
               {/* Hero Title & Hook */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
                   <span>Age 22 to 60</span>
                   <span aria-hidden="true">·</span>
@@ -134,16 +140,16 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                   <span aria-hidden="true">·</span>
                   <span>Instant Relieving Slip</span>
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-[#0f172a] tracking-tight leading-[1.05]">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0f172a] tracking-tight leading-[1.05]">
                   Hire &amp; Fire<span className="text-amber-500">.</span>
                 </h1>
-                <p className="text-sm text-slate-600 leading-relaxed max-w-lg">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg">
                   Every gate is a company. Climb from campus placement to FAANG, dodge layoffs, and retire at 60 whether you like it or not.
                 </p>
               </div>
 
               {/* Employee Name Input */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1">
                 <div className="flex items-center justify-between gap-2">
                   <label
                     htmlFor="employee-name"
@@ -163,26 +169,26 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                   onChange={(e) => onChangeCandidateName(e.target.value)}
                   placeholder="Enter your name (e.g. Chirantan Mallick)"
                   maxLength={36}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all placeholder:text-slate-400 placeholder:font-normal"
+                  className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all placeholder:text-slate-400 placeholder:font-normal"
                 />
               </div>
 
               {/* Candidate Avatar Selection */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <div className="text-xs font-semibold text-slate-700">
                   Select Candidate
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <button
                     type="button"
                     onClick={() => onSelectCharacter('boy')}
-                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
                       character === 'boy'
                         ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-md'
                         : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <CandidatePortraitSvg character="boy" size={42} className="shrink-0 rounded-lg" />
+                    <CandidatePortraitSvg character="boy" size={40} className="shrink-0 rounded-lg" />
                     <div className="flex flex-col min-w-0">
                       <span className="font-semibold text-sm truncate">Rahul M.</span>
                       <span className={`text-xs truncate ${character === 'boy' ? 'text-slate-300' : 'text-slate-500'}`}>
@@ -194,13 +200,13 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                   <button
                     type="button"
                     onClick={() => onSelectCharacter('girl')}
-                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
                       character === 'girl'
                         ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-md'
                         : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <CandidatePortraitSvg character="girl" size={42} className="shrink-0 rounded-lg" />
+                    <CandidatePortraitSvg character="girl" size={40} className="shrink-0 rounded-lg" />
                     <div className="flex flex-col min-w-0">
                       <span className="font-semibold text-sm truncate">Ananya S.</span>
                       <span className={`text-xs truncate ${character === 'girl' ? 'text-slate-300' : 'text-slate-500'}`}>
@@ -211,12 +217,41 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                 </div>
               </div>
 
+              {/* Career Domain / Role Selection (Analyst default) */}
+              <div className="flex flex-col gap-1.5">
+                <div className="text-xs font-semibold text-slate-700">
+                  Career Domain
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {CAREER_DOMAINS.map((item) => {
+                    const selected = domain === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => onSelectDomain(item.id)}
+                        className={`px-3 py-2 rounded-xl border text-left transition-all ${
+                          selected
+                            ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-sm'
+                            : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="font-semibold text-xs truncate">{item.label}</div>
+                        <div className={`text-[10px] truncate mt-0.5 ${selected ? 'text-amber-300' : 'text-slate-500'}`}>
+                          {item.focus}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Career Track Selection */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <div className="text-xs font-semibold text-slate-700">
                   Starting Career Track
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {TRACK_OPTIONS.map((item) => {
                     const selected = track === item.id;
                     return (
@@ -224,14 +259,14 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                         key={item.id}
                         type="button"
                         onClick={() => onSelectTrack(item.id)}
-                        className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-1.5 transition-all ${
+                        className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
                           selected
                             ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-md'
                             : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-semibold text-sm whitespace-nowrap">{item.label}</span>
+                          <span className="font-semibold text-xs sm:text-sm whitespace-nowrap">{item.label}</span>
                           <span
                             className={`text-[11px] font-mono font-semibold tabular-nums whitespace-nowrap ${
                               selected ? 'text-amber-300' : 'text-indigo-600'
@@ -250,11 +285,11 @@ export const StartScreen: React.FC<StartScreenProps> = ({
               </div>
 
               {/* Primary Start Action + Score Summary */}
-              <div className="flex flex-col gap-3 pt-1">
+              <div className="flex flex-col gap-2.5 pt-0.5">
                 <button
                   type="button"
                   onClick={onStart}
-                  className="w-full py-3.5 px-6 rounded-xl bg-[#1e293b] text-white hover:bg-indigo-600 transition-colors font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-[0.99]"
+                  className="w-full py-3 px-6 rounded-xl bg-[#1e293b] text-white hover:bg-indigo-600 transition-colors font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-[0.99]"
                 >
                   <Play size={16} fill="currentColor" />
                   <span>Start your career →</span>

@@ -1,0 +1,969 @@
+# UNIVERSAL RESPONSIVE ADAPTATION — EXISTING PROJECT
+
+You are modifying an **existing website/project**, not creating a new website from scratch.
+
+Your primary objective is to transform the existing project into a **fully fluid, content-driven, viewport- and container-aware responsive website** while preserving the existing website's intended design, functionality, content, branding, visual identity, and user experience.
+
+Do **not** immediately start modifying the project.
+
+Follow the workflow below **in the exact order specified**.
+
+---
+
+# PHASE 1 — COMPLETE EXISTING-PROJECT AUDIT
+
+Before making ANY code, design, layout, styling, structural, or functional changes, first perform a comprehensive audit of the entire existing website/project.
+
+You must inspect the project systematically rather than only examining the currently visible page.
+
+## 1. Scan the entire project
+
+Inspect all relevant:
+
+* Pages
+* Routes
+* Components
+* Reusable components
+* Layouts
+* Headers
+* Navigation systems
+* Sidebars
+* Footers
+* Dashboards
+* Forms
+* Cards
+* Tables
+* Lists
+* Tabs
+* Accordions
+* Carousels
+* Images
+* Videos
+* Icons
+* Buttons
+* Links
+* Inputs
+* Selects
+* Checkboxes
+* Radio buttons
+* Search interfaces
+* Tooltips
+* Dropdowns
+* Popovers
+* Context menus
+* Modals
+* Dialogs
+* Confirmation windows
+* Notifications
+* Toasts
+* Alerts
+* Loading states
+* Empty states
+* Error states
+* Success states
+* Floating elements
+* Sticky elements
+* Fixed-position elements
+* Overlays
+* Drawers
+* Mobile navigation
+* Any other interactive or visual UI element
+
+If a particular element does not exist in the project, **ignore it completely**. Do not invent or add unnecessary elements simply because they appear in this checklist.
+
+---
+
+# 2. Scan every existing device/layout version
+
+Determine whether the existing project already contains different implementations for different screen/device categories.
+
+For example, identify whether it has:
+
+* Desktop version
+* Tablet version
+* Mobile version
+* Portrait version
+* Landscape version
+* Separate mobile components
+* Separate desktop components
+* Device-specific pages
+* Device-specific CSS
+* Media-query-specific layouts
+* JavaScript device detection
+* Conditional rendering based on screen size
+* Alternative navigation systems
+* Different popup/modal designs
+* Different notification designs
+* Different component arrangements
+
+If multiple versions exist, **inspect every version**.
+
+Do NOT assume that one version is the "correct" version.
+
+Treat all existing versions as source material that may contain design decisions, functionality, spacing, sizing, or behavior that needs to be preserved or intelligently unified.
+
+---
+
+# 3. Compare different versions
+
+If multiple versions of the same element exist, compare them carefully.
+
+For each variation determine:
+
+* What is different?
+* Why might it have been different?
+* Which design decisions should be preserved?
+* Which differences exist only because of screen size?
+* Which differences are functional?
+* Which differences are purely visual?
+* Which differences should become fluid behavior?
+* Which differences should remain as intentional structural changes?
+
+Do not blindly copy the desktop version onto mobile.
+
+Do not blindly copy the mobile version onto desktop.
+
+Instead, identify the **underlying design intent** and convert unnecessary device-specific differences into fluid responsive behavior.
+
+---
+
+# 4. Scan existing styling and responsive architecture
+
+Inspect:
+
+* CSS
+* SCSS
+* Tailwind classes
+* CSS modules
+* Styled components
+* Inline styles
+* Theme files
+* Design tokens
+* Variables
+* Media queries
+* Container queries
+* Fixed widths
+* Fixed heights
+* `min-width`
+* `max-width`
+* `min-height`
+* `max-height`
+* Absolute positioning
+* Fixed positioning
+* `vw`
+* `vh`
+* `dvw`
+* `dvh`
+* `rem`
+* `em`
+* `%`
+* `clamp()`
+* `min()`
+* `max()`
+* `minmax()`
+* Flexbox
+* CSS Grid
+* Aspect-ratio rules
+* Overflow rules
+* Typography rules
+* Spacing systems
+
+Identify anything that may cause:
+
+* Overflow
+* Clipping
+* Overlapping
+* Incorrect scaling
+* Excessive whitespace
+* Tiny controls
+* Oversized controls
+* Broken layouts
+* Unreadable text
+* Inaccessible buttons
+* Popup overflow
+* Dropdown overflow
+* Incorrect alignment
+* Unnecessary horizontal scrolling
+* Device-specific fragility
+
+---
+
+# 5. Scan every screen state
+
+Do not inspect only the default state.
+
+Where applicable, inspect:
+
+* Normal state
+* Hover state
+* Focus state
+* Active state
+* Disabled state
+* Loading state
+* Error state
+* Success state
+* Empty state
+* Expanded state
+* Collapsed state
+* Open menu state
+* Open dropdown state
+* Open modal state
+* Open notification state
+
+If a particular state does not exist, ignore it.
+
+---
+
+# PHASE 2 — BUILD AN INTERNAL RESPONSIVENESS MAP
+
+After completing the audit, build a complete internal understanding of how the existing website currently works.
+
+Map:
+
+```text
+Page
+ └── Layout
+      ├── Component
+      │    ├── Content
+      │    ├── Controls
+      │    ├── Responsive behavior
+      │    └── Dependencies
+      └── Component
+```
+
+Identify which components are:
+
+* Reusable
+* Page-specific
+* Device-specific
+* Container-dependent
+* Viewport-dependent
+* Content-dependent
+* Fixed-position
+* Overlay-based
+* Interactive
+
+Identify relationships between components.
+
+Do not modify anything yet.
+
+---
+
+# PHASE 3 — ASK FOR CLARIFICATION
+
+After completing the audit, **STOP**.
+
+Do NOT implement the responsiveness yet.
+
+Do NOT modify files yet.
+
+Do NOT refactor the project yet.
+
+Do NOT make assumptions about ambiguous design decisions.
+
+Instead, ask me any questions that are genuinely necessary to correctly implement the responsive transformation.
+
+## Question rules
+
+Ask questions **number-wise**:
+
+```text
+1. ...
+2. ...
+3. ...
+4. ...
+```
+
+Every question must be directly related to the existing project and the responsive transformation.
+
+Do not ask generic questions that you can determine yourself by inspecting the project.
+
+Do not ask me for information that is already clearly available in the project.
+
+Do not ask unnecessary questions simply to delay implementation.
+
+If something can be safely determined from the existing implementation, determine it yourself.
+
+If an important design decision cannot be determined confidently, ask me.
+
+### Important
+
+You may ask as many questions as genuinely necessary.
+
+However, group related questions logically and avoid asking the same thing multiple times.
+
+If there are no meaningful ambiguities that require my input, explicitly state that no clarification is required and wait for my instruction to proceed.
+
+### WAIT
+
+After asking the questions, **WAIT FOR MY ANSWERS**.
+
+Do not continue to implementation until I respond.
+
+---
+
+# PHASE 4 — PROCESS MY ANSWERS
+
+After I provide my answers:
+
+1. Match each answer to its corresponding question number.
+2. Resolve the identified ambiguities.
+3. Incorporate my decisions into the responsive implementation plan.
+4. Do not ask the same questions again unless my answer introduces a genuinely new ambiguity.
+5. If something remains unclear and would materially affect the result, ask an additional numbered question and wait again.
+
+Once all important decisions are resolved, proceed to implementation.
+
+---
+
+# PHASE 5 — IMPLEMENT THE RESPONSIVE SYSTEM
+
+Now transform the existing website into a **fluid, content-driven, viewport- and container-aware responsive system**.
+
+The goal is NOT to create separate fixed layouts for desktop, tablet and mobile.
+
+The goal is to create **one adaptive design system** that continuously responds to the space actually available.
+
+---
+
+## CORE RESPONSIVENESS PRINCIPLE
+
+Follow this rule throughout the entire implementation:
+
+> **Do not make the website fit predefined devices. Make the website continuously adapt itself to the space that is actually available.**
+
+The interface must respond intelligently to:
+
+* Available width
+* Available height
+* Container width
+* Container height
+* Aspect ratio
+* Orientation
+* Content size
+* Text length
+* Input capability
+* Available interaction space
+
+Do not depend primarily on device identity.
+
+---
+
+# 1. PRESERVE THE EXISTING DESIGN
+
+Do not unnecessarily redesign the website.
+
+Preserve the existing:
+
+* Branding
+* Colors
+* Typography hierarchy
+* Visual identity
+* Content
+* Icons
+* Images
+* Components
+* Functionality
+* Navigation logic
+* User flows
+* Animations
+* Interactions
+
+unless a change is required to achieve proper responsiveness.
+
+The purpose is to make the existing design **adaptable**, not to replace it with a new design.
+
+---
+
+# 2. UNIFY DEVICE-SPECIFIC VERSIONS WHERE APPROPRIATE
+
+If the existing project has separate desktop/tablet/mobile implementations, determine which differences are actually necessary.
+
+Where possible, consolidate them into reusable responsive components.
+
+Do not remove a device-specific variation if it represents a genuine structural or usability requirement.
+
+Convert unnecessary device-specific differences into:
+
+* Fluid sizing
+* Flexible wrapping
+* Container-aware layouts
+* Intrinsic sizing
+* Dynamic alignment
+* Responsive component states
+
+---
+
+# 3. FLUID SIZING
+
+Prefer fluid sizing instead of excessive fixed dimensions.
+
+Use appropriate combinations of:
+
+```text
+%
+rem
+em
+vw
+vh
+dvw
+dvh
+clamp()
+min()
+max()
+minmax()
+auto
+fit-content
+```
+
+Use fixed pixel values only where they are genuinely appropriate, such as:
+
+* Borders
+* Small icon dimensions
+* Specific control constraints
+* Technical requirements
+* Intentional fixed visual details
+
+Do not create large collections of arbitrary pixel values for different screen widths.
+
+---
+
+# 4. FLUID TYPOGRAPHY
+
+Make typography responsive.
+
+Use fluid typography such as:
+
+```css
+font-size: clamp(min, preferred, max);
+```
+
+where appropriate.
+
+Adapt:
+
+* Headings
+* Body text
+* Labels
+* Navigation text
+* Button text
+* Modal text
+* Notification text
+* Form text
+
+Maintain the existing hierarchy and readability.
+
+Do not allow text to become:
+
+* Too small
+* Too large
+* Clipped
+* Overlapping
+* Unnecessarily wrapped
+
+---
+
+# 5. CONTAINER-AWARE RESPONSIVENESS
+
+Prefer **container queries** for reusable components whenever appropriate.
+
+A component should respond to the space available to it rather than assuming that the entire viewport is available.
+
+This is especially important for:
+
+* Cards
+* Widgets
+* Sidebars
+* Dashboard components
+* Forms
+* Tables
+* Modals
+* Reusable content blocks
+
+---
+
+# 6. FLEXIBLE LAYOUT
+
+Use:
+
+* CSS Grid
+* Flexbox
+* Intrinsic sizing
+* `minmax()`
+* `auto-fit`
+* `auto-fill`
+* Wrapping
+* Content-aware sizing
+
+Avoid unnecessary absolute positioning.
+
+If absolute or fixed positioning already exists, determine whether it is intentional before changing it.
+
+---
+
+# 7. ORIENTATION RESPONSIVENESS
+
+The website must work correctly in:
+
+* Portrait
+* Landscape
+
+Do not simply scale the portrait layout into landscape.
+
+Allow layouts to intelligently reflow when the available aspect ratio changes.
+
+---
+
+# 8. VIEWPORT HEIGHT RESPONSIVENESS
+
+Do not consider width alone.
+
+A layout must also adapt to changes in viewport height.
+
+Account for:
+
+* Short browser windows
+* Tall screens
+* Mobile browser UI
+* Virtual keyboard appearance
+* Resized windows
+* Split-screen mode
+
+Avoid unnecessary fixed viewport-height assumptions.
+
+---
+
+# 9. POPUPS, MODALS AND DIALOGS
+
+Every existing popup/modal/dialog must be individually checked.
+
+They must adapt to the available viewport.
+
+Ensure:
+
+* No clipping
+* No inaccessible buttons
+* No content extending outside the viewport
+* No accidental horizontal overflow
+* Proper scrolling when content exceeds available height
+* Proper button wrapping/stacking
+* Correct close-button positioning
+* Correct internal spacing
+* Correct typography
+
+The popup itself must also be responsive, not merely the page behind it.
+
+---
+
+# 10. DROPDOWNS AND POPOVERS
+
+Every existing dropdown/popover must adapt to available space.
+
+Ensure they:
+
+* Stay within the usable viewport where appropriate
+* Do not cover critical controls unnecessarily
+* Reposition when there is insufficient space
+* Handle long content
+* Remain usable on touchscreens
+
+---
+
+# 11. NOTIFICATIONS AND TOASTS
+
+Every existing notification/toast/alert must be checked.
+
+Ensure that notifications:
+
+* Remain readable
+* Do not overflow
+* Do not cover essential controls unnecessarily
+* Adapt their width
+* Wrap text correctly
+* Maintain accessible buttons
+* Respect safe areas
+* Work in portrait and landscape
+
+---
+
+# 12. FORMS AND CONTROLS
+
+Every form must be checked at arbitrary widths.
+
+Inputs, buttons and controls must:
+
+* Remain usable
+* Maintain appropriate touch targets
+* Wrap or stack when necessary
+* Avoid overflow
+* Preserve alignment
+* Handle long labels
+* Handle validation messages
+* Handle keyboard interaction
+
+---
+
+# 13. TABLES AND DATA-DENSE COMPONENTS
+
+Do not blindly shrink tables until they become unreadable.
+
+For narrow containers, determine the most appropriate existing-project-compatible behavior, such as:
+
+* Responsive wrapping
+* Horizontal scrolling where genuinely necessary
+* Column prioritization
+* Stacked presentation
+* Alternative compact representation
+
+Do not destroy data visibility merely to avoid scrolling.
+
+---
+
+# 14. IMAGES AND MEDIA
+
+Make all existing images and media responsive while preserving intended proportions.
+
+Use appropriate:
+
+```text
+width
+height
+max-width
+height: auto
+object-fit
+aspect-ratio
+```
+
+Avoid image distortion.
+
+---
+
+# 15. TOUCH AND POINTER SUPPORT
+
+The existing interface must work with:
+
+* Mouse
+* Trackpad
+* Touch
+* Stylus
+* Keyboard
+
+Do not rely exclusively on hover.
+
+Maintain appropriate interactive target sizes.
+
+---
+
+# 16. SAFE-AREA SUPPORT
+
+Where relevant, account for:
+
+```css
+env(safe-area-inset-top)
+env(safe-area-inset-right)
+env(safe-area-inset-bottom)
+env(safe-area-inset-left)
+```
+
+Ensure fixed and floating elements do not become inaccessible because of:
+
+* Notches
+* Rounded corners
+* Gesture areas
+* Camera cutouts
+* Mobile browser UI
+
+---
+
+# 17. NO UNINTENDED HORIZONTAL OVERFLOW
+
+The finished website must not have accidental horizontal scrolling.
+
+Check for:
+
+* Oversized elements
+* Fixed-width containers
+* Long text
+* Images
+* Tables
+* Modals
+* Dropdowns
+* Notifications
+* Absolute-positioned elements
+* Negative margins
+* Transforms
+* Navigation elements
+
+Intentional horizontal scrolling should only be used where it is genuinely appropriate.
+
+---
+
+# 18. JAVASCRIPT DEVICE DETECTION
+
+Do not introduce device-specific JavaScript such as:
+
+```text
+isMobile
+isTablet
+isDesktop
+iPhone
+Android
+iPad
+```
+
+when CSS/layout capabilities can solve the problem.
+
+Prefer responding to:
+
+* Available space
+* Container size
+* Orientation
+* Interaction capabilities
+
+rather than device identity.
+
+---
+
+# 19. BREAKPOINT POLICY
+
+Breakpoints are allowed.
+
+However:
+
+> **Use breakpoints for behavioral/structural changes, not as a substitute for fluid responsive design.**
+
+Do not create dozens of arbitrary breakpoints.
+
+Do not assume:
+
+```text
+320px = mobile
+768px = tablet
+1024px = tablet
+1280px = desktop
+```
+
+These may be useful thresholds, but they must not define the entire responsive architecture.
+
+The website must remain fluid between, below and above any breakpoints.
+
+---
+
+# 20. RESPONSIVE COMPONENT INDEPENDENCE
+
+Every major reusable component should be able to adapt independently to the space available to it.
+
+Do not solve a component's responsiveness only by adding page-level media queries if the component itself can be made adaptive.
+
+Prefer reusable responsive behavior.
+
+---
+
+# 21. PRESERVE FUNCTIONALITY
+
+During the responsive conversion, do not accidentally break:
+
+* Navigation
+* Buttons
+* Forms
+* Links
+* Modals
+* Dropdowns
+* Authentication
+* Data loading
+* API interactions
+* State management
+* Validation
+* Animations
+* User flows
+
+Responsiveness must improve presentation **without degrading functionality**.
+
+---
+
+# PHASE 6 — SYSTEMATIC VALIDATION
+
+After implementation, perform a second complete audit.
+
+Inspect **every existing page and every existing UI component again**.
+
+Check:
+
+* Layout
+* Typography
+* Spacing
+* Alignment
+* Buttons
+* Forms
+* Images
+* Navigation
+* Dropdowns
+* Popups
+* Modals
+* Notifications
+* Tables
+* Overlays
+* Fixed elements
+* Sticky elements
+* Interactive states
+
+---
+
+# TEST ARBITRARY VIEWPORTS
+
+Do not validate only standard device sizes.
+
+Test a continuous range of unusual viewport dimensions, including:
+
+* Very wide + short
+* Very wide + tall
+* Medium + short
+* Medium + tall
+* Narrow + short
+* Narrow + tall
+* Portrait
+* Landscape
+* Intermediate widths
+* Intermediate heights
+* Resized browser windows
+* Split-screen layouts
+
+The website must remain usable even at dimensions that were never explicitly specified in this prompt.
+
+---
+
+# FINAL QUALITY CHECK
+
+Before declaring the work complete, verify the following:
+
+### Layout
+
+* No unintended overflow
+* No clipping
+* No overlapping elements
+* No broken alignment
+* No unexplained empty spaces
+
+### Typography
+
+* Readable at all tested dimensions
+* Proper hierarchy
+* No text clipping
+* No problematic wrapping
+
+### Controls
+
+* Buttons remain usable
+* Inputs remain usable
+* Touch targets remain appropriate
+* Controls do not overlap
+
+### Popups
+
+* Fully visible
+* Scrollable when necessary
+* Correctly positioned
+* Buttons accessible
+* Content not clipped
+
+### Navigation
+
+* Remains accessible
+* Adapts naturally
+* Does not overflow
+
+### Notifications
+
+* Remain readable
+* Do not overflow
+* Respect safe areas
+* Do not unnecessarily obstruct important controls
+
+### Media
+
+* No distortion
+* Correct aspect ratios
+* No overflow
+
+### Orientation
+
+* Portrait works
+* Landscape works
+
+### Functional integrity
+
+* Existing functionality remains intact
+* No unnecessary features were added
+* No existing features were accidentally removed
+
+---
+
+# MOST IMPORTANT IMPLEMENTATION RULE
+
+Throughout the entire process, follow this principle:
+
+> **The website should not be designed for a list of devices. It should be designed for the space available to the website at any given moment.**
+
+Think of responsiveness as a **continuous spectrum**, not:
+
+```text
+Mobile → Tablet → Desktop
+```
+
+Instead, think:
+
+```text
+Available space changes continuously
+                ↓
+Components continuously adapt
+                ↓
+Layout continuously reflows
+                ↓
+Typography and spacing continuously adjust
+                ↓
+The interface remains usable and visually coherent
+```
+
+Do not stop at making the website responsive at common device sizes.
+
+Make the underlying implementation **intrinsically responsive** so that it continues to behave correctly at unexpected viewport dimensions.
+
+---
+
+# EXECUTION ORDER — STRICT
+
+Follow this sequence:
+
+```text
+1. Scan the entire existing project.
+2. Scan every page and UI element.
+3. Identify all existing device/layout variations.
+4. Compare those variations.
+5. Analyze existing responsive CSS/layout architecture.
+6. Build an internal responsiveness map.
+7. Identify genuine ambiguities.
+8. Ask me numbered clarification questions.
+9. STOP.
+10. Wait for my answers.
+11. Process my answers.
+12. Ask additional numbered questions only if genuinely necessary.
+13. Once clarified, create the implementation strategy.
+14. Implement the responsive transformation.
+15. Preserve existing design and functionality.
+16. Validate every page and component.
+17. Test arbitrary viewport dimensions and orientations.
+18. Fix every responsive issue discovered.
+19. Perform the final complete audit.
+20. Only then consider the responsive implementation complete.
+```
+
+## ABSOLUTE RULE
+
+**Do not skip the audit.
+Do not skip the clarification phase.
+Do not start implementation before receiving my answers to the clarification questions.
+Do not assume missing information when asking me is necessary.**
+
+If something does not exist in the project, simply ignore it.
+
+The final result must be a **single, fluid, adaptive website that naturally responds to whatever space is available**, rather than a collection of fixed device-specific versions.

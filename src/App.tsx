@@ -4,8 +4,9 @@
  */
 
 import React, { Suspense, lazy, useEffect, useRef, useState, useCallback } from 'react';
-import { BestScores, CareerRecord, Character, CorporateEvent, FlightState, GameMode, Track } from './types/game';
+import { BestScores, CareerDomain, CareerRecord, Character, CorporateEvent, FlightState, GameMode, Track } from './types/game';
 import { GameEngine } from './game/physics';
+import { DEFAULT_CAREER_DOMAIN, isValidCareerDomain } from './game/domains';
 import { CanvasRenderer } from './game/canvasRenderer';
 import { sound } from './game/sound';
 import { StartScreen } from './components/StartScreen';
@@ -37,6 +38,11 @@ export default function App() {
     return (localStorage.getItem('worklife:level') as Track) || 'associate';
   });
 
+  const [domain, setDomain] = useState<CareerDomain>(() => {
+    const saved = localStorage.getItem('worklife:domain');
+    return isValidCareerDomain(saved) ? saved : DEFAULT_CAREER_DOMAIN;
+  });
+
   const [bestScores, setBestScores] = useState<BestScores>(() => {
     try {
       const raw = localStorage.getItem('worklife:best');
@@ -58,7 +64,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(sound.enabled);
   const [gameMode, setGameMode] = useState<GameMode>('IDLE');
   const [flightState, setFlightState] = useState<FlightState>(() => {
-    const tempEngine = new GameEngine(character, track, candidateName);
+    const tempEngine = new GameEngine(character, track, candidateName, domain);
     return tempEngine.flight;
   });
   const [activeEvent, setActiveEvent] = useState<CorporateEvent | null>(null);
@@ -78,7 +84,7 @@ export default function App() {
       localStorage.setItem('worklife:candidate_name', updatedName);
     }
     if (gameMode === 'IDLE') {
-      const engine = new GameEngine(c, track, updatedName);
+      const engine = new GameEngine(c, track, updatedName, domain);
       engineRef.current = engine;
       setFlightState(engine.flight);
     }
@@ -97,7 +103,17 @@ export default function App() {
     setTrack(t);
     localStorage.setItem('worklife:level', t);
     if (gameMode === 'IDLE') {
-      const engine = new GameEngine(character, t, candidateName);
+      const engine = new GameEngine(character, t, candidateName, domain);
+      engineRef.current = engine;
+      setFlightState(engine.flight);
+    }
+  };
+
+  const handleSelectDomain = (d: CareerDomain) => {
+    setDomain(d);
+    localStorage.setItem('worklife:domain', d);
+    if (gameMode === 'IDLE') {
+      const engine = new GameEngine(character, track, candidateName, d);
       engineRef.current = engine;
       setFlightState(engine.flight);
     }
@@ -133,6 +149,7 @@ export default function App() {
       character: finalFlight.character,
       candidateName: finalFlight.candidateName || candidateName,
       track: finalFlight.track,
+      domain: finalFlight.domain,
       exitAge: finalFlight.age,
       companiesCleared: finalFlight.score,
       finalLPA: finalFlight.packageLPA,
@@ -153,7 +170,7 @@ export default function App() {
     sound.unlock();
     const canvas = canvasRef.current;
     const resolvedName = candidateName.trim() || (character === 'boy' ? 'Rahul Mukherjee' : 'Ananya Sen');
-    const engine = new GameEngine(character, track, resolvedName);
+    const engine = new GameEngine(character, track, resolvedName, domain);
     if (canvas) {
       engine.setDimensions(canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
     }
@@ -163,7 +180,7 @@ export default function App() {
     setActiveEvent(null);
     setGameMode('PLAYING');
     setShowRelieving(false);
-  }, [character, track, candidateName]);
+  }, [character, track, candidateName, domain]);
 
   // Pause & Resume
   const handlePause = useCallback(() => {
@@ -285,7 +302,7 @@ export default function App() {
 
       // Initialize engine if not yet created
       if (!engineRef.current) {
-        engineRef.current = new GameEngine(character, track);
+        engineRef.current = new GameEngine(character, track, candidateName, domain);
         engineRef.current.setDimensions(width, height);
       }
 
@@ -360,11 +377,13 @@ export default function App() {
           character={character}
           candidateName={candidateName}
           track={track}
+          domain={domain}
           bestScores={bestScores}
           soundEnabled={soundEnabled}
           onSelectCharacter={handleSelectCharacter}
           onChangeCandidateName={handleChangeCandidateName}
           onSelectTrack={handleSelectTrack}
+          onSelectDomain={handleSelectDomain}
           onStart={handleStartGame}
           onToggleSound={handleToggleSound}
           onToggleFullscreen={handleToggleFullscreen}

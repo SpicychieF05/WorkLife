@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
-import { Character, Track } from '../types/game';
+import { CareerDomain, Character, Track } from '../types/game';
+import { getDomainOption, getRoleTitleForProgression } from '../game/domains';
 
 interface PortraitProps {
   character: Character;
@@ -230,12 +231,13 @@ interface StageIllustrationProps {
   character: Character;
   candidateName: string;
   track: Track;
+  domain: CareerDomain;
 }
 
-const TRACK_DETAILS: Record<Track, { lpa: string; role: string; year: string }> = {
-  fresher: { lpa: '₹3.6 LPA', role: 'GET / Systems Engineer', year: 'Age 22' },
-  associate: { lpa: '₹8.5 LPA', role: 'Senior Software Dev', year: 'Age 22' },
-  expert: { lpa: '₹24.0 LPA', role: 'Tech Lead / Architect', year: 'Age 22' },
+const TRACK_LPA: Record<Track, string> = {
+  fresher: '₹3.6 LPA',
+  associate: '₹8.5 LPA',
+  expert: '₹24.0 LPA',
 };
 
 /**
@@ -246,10 +248,13 @@ export const CareerStageIllustration: React.FC<StageIllustrationProps> = ({
   character,
   candidateName,
   track,
+  domain,
 }) => {
   const isBoy = character === 'boy';
   const displayName = candidateName.trim() || (isBoy ? 'Rahul Mukherjee' : 'Ananya Sen');
-  const trackInfo = TRACK_DETAILS[track];
+  const startingLpa = TRACK_LPA[track];
+  const startingRole = getRoleTitleForProgression(domain, track, 22.0);
+  const domainInfo = getDomainOption(domain);
 
   return (
     <div className="relative w-full h-full min-h-[260px] lg:min-h-[460px] rounded-2xl overflow-hidden bg-[#0f172a] border border-slate-800 flex flex-col justify-between">
@@ -262,13 +267,13 @@ export const CareerStageIllustration: React.FC<StageIllustrationProps> = ({
           <div className="flex flex-col min-w-0">
             <span className="text-xs font-semibold text-white truncate">{displayName}</span>
             <span className="text-[11px] text-slate-400 truncate">
-              {trackInfo.role} · {trackInfo.year} → 60
+              {startingRole} · {domainInfo.label} · Age 22 → 60
             </span>
           </div>
         </div>
         <div className="text-right shrink-0 pl-3">
           <div className="text-[10px] uppercase tracking-wider text-slate-400">Starting CTC</div>
-          <div className="text-sm font-mono font-bold text-amber-400 tabular-nums">{trackInfo.lpa}</div>
+          <div className="text-sm font-mono font-bold text-amber-400 tabular-nums">{startingLpa}</div>
         </div>
       </div>
 
