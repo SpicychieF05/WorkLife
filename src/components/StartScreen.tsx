@@ -37,10 +37,16 @@ export const StartScreen: React.FC<StartScreenProps> = ({
     <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-6 bg-[#eef0f5] z-30 overflow-y-auto">
       <div className="w-full max-w-xl bg-white border border-slate-200 shadow-xl rounded-2xl p-5 sm:p-7 flex flex-col gap-4 text-slate-800 my-auto">
         
-        {/* Top Header Pills */}
+        {/* Top Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-600">
-            <span className="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-md font-mono">
+          <div className="flex items-center gap-2.5 text-xs font-semibold tracking-wider text-slate-600">
+            <img
+              src="/assets/favicon.svg"
+              alt="WorkLife emblem"
+              referrerPolicy="no-referrer"
+              className="w-6 h-6 rounded-md shrink-0"
+            />
+            <span className="font-mono font-bold text-indigo-600">
               WORKLIFE
             </span>
             <span className="text-slate-400">·</span>

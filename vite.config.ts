@@ -1,11 +1,26 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import {defineConfig, type Plugin} from 'vite';
+
+function socialMetaPlugin(): Plugin {
+  return {
+    name: 'worklife-social-meta',
+    transformIndexHtml(html) {
+      const appUrl = (process.env.APP_URL || '').replace(/\/+$/, '');
+      const bannerUrl = appUrl ? `${appUrl}/assets/og-banner.png` : '/assets/og-banner.png';
+      const pageUrl = appUrl ? `${appUrl}/` : '/';
+
+      return html
+        .replace(/__OG_IMAGE_URL__/g, bannerUrl)
+        .replace(/__CANONICAL_URL__/g, pageUrl);
+    },
+  };
+}
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), socialMetaPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

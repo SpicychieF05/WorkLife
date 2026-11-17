@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FlightState } from '../types/game';
-import { formatPackage } from '../game/companies';
+import { formatPackage, getCompanyCorporateProfile } from '../game/companies';
 import { X, Copy, Download, Check, ShieldCheck, Printer } from 'lucide-react';
 
 interface RelievingLetterModalProps {
@@ -14,9 +14,14 @@ export const RelievingLetterModal: React.FC<RelievingLetterModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [printNotice, setPrintNotice] = useState<string | null>(null);
 
   const candidateName = flight.candidateName || (flight.character === 'boy' ? 'Rahul Mukherjee' : 'Ananya Sen');
-  const empId = `WL-${Math.floor(10000 + flight.age * 123)}`;
+  const lastCompany = flight.crashedCompany || flight.currentCompany;
+  const companyProfile = getCompanyCorporateProfile(lastCompany);
+
+  const empId = `${companyProfile.code}-${Math.floor(10000 + flight.age * 123)}`;
+  const refNo = `${companyProfile.code}/HR/F&F/2026/${Math.floor(flight.age * 987)}`;
   const finalCTC = formatPackage(flight.packageLPA);
   const tenureYears = Math.max(0.1, flight.age - 22.0).toFixed(1);
   const currentDate = new Date().toLocaleDateString('en-IN', {
@@ -25,32 +30,33 @@ export const RelievingLetterModal: React.FC<RelievingLetterModalProps> = ({
     year: 'numeric'
   });
 
-  const letterText = `WORKLIFE IT SOLUTIONS PVT. LTD.
-SEZ Tech Corridor, Cyber Towers Phase 1, Hinjawadi, Pune - 411057
+  const letterText = `${companyProfile.legalName}
+${companyProfile.address}
+${companyProfile.cin}
 
-REF NO: WL/HR/F&F/2026/${Math.floor(flight.age * 987)}
+REF NO: ${refNo}
 DATE: ${currentDate}
 
 SUBJECT: SERVICE CERTIFICATE & FULL AND FINAL SETTLEMENT STATEMENT
 
 TO WHOMSOEVER IT MAY CONCERN
 
-This is to certify that ${candidateName} (Employee Code: ${empId}) was in active employment with WorkLife IT Solutions from Age 22.0 years until cessation of service at Age ${flight.age.toFixed(1)} years (Total Corporate Tenure: ${tenureYears} years).
+This is to certify that ${candidateName} (Employee Code: ${empId}) was in active employment with ${companyProfile.legalName} as their final posted organization, concluding an IT career spanning from Age 22.0 years until cessation of service at Age ${flight.age.toFixed(1)} years (Total Corporate Tenure: ${tenureYears} years).
 
-During the aforementioned tenure, the employee served with designation "${flight.targetRole}" and successfully cleared ${flight.score} institutional company promotion gates.
+During their tenure, the employee served with the designation "${flight.targetRole}" and cleared ${flight.score} institutional company promotion gates across the industry (career record verified via WorkLife IT Solutions).
 
 COMPENSATION & SETTLEMENT DETAILS:
 - Last Drawn Annual CTC: ${finalCTC}
 - Notice Period Status: Waived as per project deallocation protocol
-- Asset Handover: Completed & verified at security desk
+- Asset Handover: Completed & verified at ${companyProfile.city} security desk
 - Final Dues: Settled with standard bell-curve adjustments
 
 We acknowledge the employee's dedication to the sprint backlog and release deliverables. We wish them all success in their future endeavors.
 
 Yours sincerely,
 Head of Human Resources & People Operations
-WorkLife Technologies India Pvt. Ltd.
-[DIGITALLY STAMPED & VERIFIED]`;
+${companyProfile.legalName}
+[DIGITALLY STAMPED · ARCHIVED ON WORKLIFE IT SOLUTIONS]`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(letterText);
@@ -58,11 +64,8 @@ WorkLife Technologies India Pvt. Ltd.
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const [printNotice, setPrintNotice] = useState<string | null>(null);
-
   const handlePrint = () => {
     try {
-      // 1. Create a dedicated hidden iframe with isolated A4 print stylesheet
       const iframe = document.createElement('iframe');
       iframe.style.position = 'fixed';
       iframe.style.right = '0';
@@ -84,7 +87,7 @@ WorkLife Technologies India Pvt. Ltd.
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Relieving Letter - ${candidateName}</title>
+  <title>Relieving Letter - ${candidateName} (${companyProfile.shortName})</title>
   <style>
     @page {
       size: A4 portrait;
@@ -111,7 +114,7 @@ WorkLife Technologies India Pvt. Ltd.
       position: relative;
     }
     .inner-border {
-      border: 1px solid #d97706;
+      border: 1px solid ${lastCompany.color};
       position: absolute;
       inset: 4px;
       pointer-events: none;
@@ -123,10 +126,10 @@ WorkLife Technologies India Pvt. Ltd.
       margin-bottom: 16px;
     }
     .company-name {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
       color: #0f172a;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
     }
     .address {
       font-size: 11px;
@@ -230,22 +233,22 @@ WorkLife Technologies India Pvt. Ltd.
   <div class="border-frame">
     <div class="inner-border"></div>
     <div class="header">
-      <div class="company-name">WORKLIFE IT SOLUTIONS PRIVATE LIMITED</div>
-      <div class="address">SEZ Tech Corridor, Cyber Towers Phase 1, Hinjawadi, Pune - 411057, Maharashtra</div>
-      <div class="cin">CIN: U72200PN2026PTC099482 · HR Central Operations · ISO 9001:2015 &amp; CMMI Level 5</div>
+      <div class="company-name">${companyProfile.legalName}</div>
+      <div class="address">${companyProfile.address}</div>
+      <div class="cin">${companyProfile.cin} · ${lastCompany.tier} Division</div>
     </div>
 
     <div class="meta-row">
-      <span>REF: WL/HR/F&amp;F/2026/${Math.floor(flight.age * 987)}</span>
+      <span>REF: ${refNo}</span>
       <span>DATE: ${currentDate.toUpperCase()}</span>
     </div>
 
     <div class="subject-title">TO WHOMSOEVER IT MAY CONCERN</div>
     <div class="subject">SUBJECT: SERVICE CERTIFICATE &amp; FULL AND FINAL SETTLEMENT STATEMENT</div>
 
-    <p>This is to formally certify that <strong>${candidateName}</strong> (Employee ID: <code>${empId}</code>) was in continuous and active corporate service with WorkLife IT Solutions Private Limited from campus placement at Age 22.0 years until cessation of service at Age <strong>${flight.age.toFixed(1)} years</strong> (Total Corporate Tenure: ${tenureYears} Years).</p>
+    <p>This is to formally certify that <strong>${candidateName}</strong> (Employee ID: <code>${empId}</code>) was in active corporate service with <strong>${companyProfile.legalName}</strong> as their final posted organization, concluding an industry career spanning from campus induction at Age 22.0 years until cessation of service at Age <strong>${flight.age.toFixed(1)} years</strong> (Total Corporate Tenure: ${tenureYears} Years).</p>
 
-    <p>During their tenure with the Organization, the employee held the designation of <strong>"${flight.targetRole}"</strong> and successfully cleared <strong>${flight.score} institutional company promotion gates</strong> across the Indian IT hiring pipeline.</p>
+    <p>During their career, the employee held the designation of <strong>"${flight.targetRole}"</strong> and successfully cleared <strong>${flight.score} institutional company promotion gates</strong> across the Indian IT hiring pipeline (career history verified via <strong>WorkLife IT Solutions</strong> Alumni Registry).</p>
 
     <div class="table-container">
       <table>
@@ -259,7 +262,7 @@ WorkLife Technologies India Pvt. Ltd.
         <tbody>
           <tr>
             <td><strong>Last Drawn Annual CTC</strong></td>
-            <td>Approved by Leadership &amp; Compensation Committee</td>
+            <td>Approved by ${companyProfile.shortName} Compensation Committee</td>
             <td class="ctc-val">${finalCTC}</td>
           </tr>
           <tr>
@@ -269,7 +272,7 @@ WorkLife Technologies India Pvt. Ltd.
           </tr>
           <tr>
             <td><strong>Hardware &amp; Asset Clearance</strong></td>
-            <td>NFC Keycard, Monitor &amp; Laptop Relinquished</td>
+            <td>NFC Keycard, Monitor &amp; Laptop Relinquished (${companyProfile.city})</td>
             <td>No Dues Certificate Issued</td>
           </tr>
           <tr>
@@ -288,18 +291,18 @@ WorkLife Technologies India Pvt. Ltd.
         <div style="font-weight: bold; color: #1e293b; margin-bottom: 4px;">Yours sincerely,</div>
         <div style="font-family: cursive; font-size: 18px; color: #1d4ed8; margin: 8px 0;">Authorized Signatory</div>
         <div style="font-weight: bold; font-size: 12px;">Head of Human Capital Operations</div>
-        <div style="color: #64748b; font-size: 11px;">WorkLife Technologies India Pvt. Ltd.</div>
+        <div style="color: #64748b; font-size: 11px;">${companyProfile.legalName}</div>
       </div>
 
       <div class="stamp">
-        <div>★ WORKLIFE IT SOLUTIONS ★</div>
+        <div>★ ${companyProfile.shortName.toUpperCase()} INDIA ★</div>
         <div>RELIEVING &amp; F&amp;F SEALED</div>
         <div style="color: #16a34a; font-size: 8px; margin-top: 2px;">NO DUES OUTSTANDING</div>
       </div>
     </div>
 
     <div class="footer-note">
-      System Generated Authentic Service Document · Digitally Signed &amp; Sealed · Page 1 of 1
+      Verified via WorkLife IT Solutions Career Registry · Digitally Signed &amp; Sealed · Page 1 of 1
     </div>
   </div>
 </body>
@@ -361,13 +364,13 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, A4_WIDTH, A4_HEIGHT);
 
-        // 2. Double Border Frame (Navy & Gold)
+        // 2. Double Border Frame (Navy & Brand Accent)
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 4;
         ctx.strokeRect(40, 40, A4_WIDTH - 80, A4_HEIGHT - 80);
 
-        ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = lastCompany.color;
+        ctx.lineWidth = 2;
         ctx.strokeRect(48, 48, A4_WIDTH - 96, A4_HEIGHT - 96);
 
         // Corner decorative brackets
@@ -375,7 +378,7 @@ WorkLife Technologies India Pvt. Ltd.
           ctx.save();
           ctx.translate(cx, cy);
           ctx.rotate(rot);
-          ctx.fillStyle = '#d97706';
+          ctx.fillStyle = lastCompany.color;
           ctx.fillRect(0, 0, 16, 3);
           ctx.fillRect(0, 0, 3, 16);
           ctx.restore();
@@ -389,49 +392,46 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.save();
         ctx.translate(A4_WIDTH / 2, A4_HEIGHT / 2);
         ctx.rotate(-Math.PI / 4);
-        ctx.font = 'bold 54px system-ui, -apple-system, sans-serif';
+        ctx.font = 'bold 52px system-ui, -apple-system, sans-serif';
         ctx.fillStyle = 'rgba(15, 23, 42, 0.035)';
         ctx.textAlign = 'center';
-        ctx.fillText('WORKLIFE IT · OFFICIAL RELIEVING ORDER', 0, -40);
-        ctx.fillText('VERIFIED FULL & FINAL SETTLEMENT', 0, 40);
+        ctx.fillText(`${companyProfile.shortName.toUpperCase()} · OFFICIAL RELIEVING ORDER`, 0, -40);
+        ctx.fillText('VERIFIED VIA WORKLIFE IT SOLUTIONS', 0, 40);
         ctx.restore();
 
-        // 4. Header: Logo & Company Name
-        // Geometric Company Logo Emblem
+        // 4. Header: Brand Emblem & Last Company Name
         const logoX = A4_WIDTH / 2;
         const logoY = 115;
         ctx.fillStyle = '#1e293b';
         ctx.beginPath();
-        ctx.arc(logoX, logoY, 26, 0, Math.PI * 2);
+        ctx.arc(logoX, logoY, 28, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#6366f1';
+        ctx.strokeStyle = lastCompany.color;
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(logoX - 12, logoY - 8);
-        ctx.lineTo(logoX, logoY - 18);
-        ctx.lineTo(logoX + 12, logoY - 8);
-        ctx.lineTo(logoX, logoY + 14);
-        ctx.closePath();
-        ctx.fill();
+        ctx.arc(logoX, logoY, 28, 0, Math.PI * 2);
+        ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 15px system-ui, sans-serif';
+        ctx.font = `bold ${companyProfile.code.length > 4 ? 11 : 14}px monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('WL', logoX, logoY - 2);
+        ctx.fillText(companyProfile.code, logoX, logoY + 1);
 
-        // Company Title
+        // Company Legal Name (auto-fit if long)
         ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 30px "Fraunces", Georgia, serif';
-        ctx.fillText('WORKLIFE IT SOLUTIONS PRIVATE LIMITED', A4_WIDTH / 2, 178);
+        const titleFontSize = companyProfile.legalName.length > 42 ? 24 : 28;
+        ctx.font = `bold ${titleFontSize}px "Fraunces", Georgia, serif`;
+        ctx.fillText(companyProfile.legalName, A4_WIDTH / 2, 178);
 
         ctx.font = '500 13px system-ui, sans-serif';
         ctx.fillStyle = '#475569';
-        ctx.fillText('SEZ Tech Corridor, Cyber Towers Phase 1, Hinjawadi, Pune - 411057, Maharashtra, India', A4_WIDTH / 2, 206);
+        ctx.fillText(companyProfile.address, A4_WIDTH / 2, 206);
 
         ctx.font = '11px monospace';
         ctx.fillStyle = '#64748b';
-        ctx.fillText('CIN: U72200PN2026PTC099482 · MCA Registered · ISO 9001:2015 & CMMI Level 5 Certified', A4_WIDTH / 2, 226);
+        ctx.fillText(`${companyProfile.cin} · ${lastCompany.tier} Division`, A4_WIDTH / 2, 226);
 
         // Header Divider
         ctx.strokeStyle = '#cbd5e1';
@@ -445,7 +445,7 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.font = 'bold 13px monospace';
         ctx.fillStyle = '#334155';
         ctx.textAlign = 'left';
-        ctx.fillText(`REF NO: WL/HR/F&F/2026/${Math.floor(flight.age * 987)}`, 100, 280);
+        ctx.fillText(`REF NO: ${refNo}`, 100, 280);
         ctx.textAlign = 'right';
         ctx.fillText(`DATE: ${currentDate.toUpperCase()}`, A4_WIDTH - 100, 280);
 
@@ -460,8 +460,8 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.fillText('SUBJECT: SERVICE CERTIFICATE & FULL AND FINAL SETTLEMENT STATEMENT', A4_WIDTH / 2, 360);
 
         // Decorative Underline under subject
-        ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = lastCompany.color;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(A4_WIDTH / 2 - 240, 372);
         ctx.lineTo(A4_WIDTH / 2 + 240, 372);
@@ -474,9 +474,8 @@ WorkLife Technologies India Pvt. Ltd.
         const lineHeight = 28;
         let y = 430;
 
-        const p1 = `This is to formally certify that ${candidateName} (Employee Code: ${empId}) was in continuous and active corporate employment with WorkLife IT Solutions Private Limited from campus induction at Age 22.0 years until cessation of service at Age ${flight.age.toFixed(1)} years (Total Corporate Tenure: ${tenureYears} Years).`;
+        const p1 = `This is to formally certify that ${candidateName} (Employee Code: ${empId}) was in active corporate employment with ${companyProfile.legalName} as their final posted organization, concluding an industry career spanning from campus induction at Age 22.0 years until cessation of service at Age ${flight.age.toFixed(1)} years (Total Corporate Tenure: ${tenureYears} Years).`;
 
-        // Wrap text helper
         const wrapText = (text: string, x: number, startY: number, maxW: number, lHeight: number) => {
           const words = text.split(' ');
           let line = '';
@@ -499,7 +498,7 @@ WorkLife Technologies India Pvt. Ltd.
         y = wrapText(p1, 100, y, A4_WIDTH - 200, lineHeight);
         y += 8;
 
-        const p2 = `During their tenure with the Organization, the employee served with the designation of "${flight.targetRole}" and cleared ${flight.score} institutional company promotion gates across the campus and corporate recruitment pipelines.`;
+        const p2 = `During their service, the employee held the designation of "${flight.targetRole}" and cleared ${flight.score} institutional company promotion gates across the Indian IT hiring pipeline. Employment history and credentials are digitally archived on the WorkLife IT Solutions Career Verification Registry.`;
         y = wrapText(p2, 100, y, A4_WIDTH - 200, lineHeight);
         y += 18;
 
@@ -509,7 +508,6 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.fillText('COMPENSATION & CLEARANCE AUDIT TABLE:', 100, y);
         y += 14;
 
-        // Table Header
         const tableX = 100;
         const tableW = A4_WIDTH - 200;
         const rowH = 40;
@@ -520,15 +518,14 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.font = 'bold 12px system-ui, sans-serif';
         ctx.fillText('AUDIT COMPONENT', tableX + 16, y + 25);
         ctx.fillText('HR ASSESSMENT & STATUS', tableX + 320, y + 25);
-        ctx.fillText('RECORD VALUE', tableX + 720, y + 25);
+        ctx.fillText('RECORD VALUE', tableX + 730, y + 25);
 
         y += rowH;
 
-        // Table Rows
         const rows = [
-          ['Last Drawn Annual CTC', 'Approved by Senior Leadership & Compensation Committee', finalCTC],
+          ['Last Drawn Annual CTC', `Approved by ${companyProfile.shortName} Compensation Committee`, finalCTC],
           ['Notice Period Compliance', 'Waived under Project Transition & Deallocation Protocol', 'Zero Penalty'],
-          ['Hardware & Asset Clearance', 'NFC Keycard, Monitor & Laptop Cleared at Turnstile', 'No Dues Issued'],
+          ['Hardware & Asset Clearance', `NFC Keycard, Monitor & Laptop Cleared (${companyProfile.city})`, 'No Dues Issued'],
           ['Provident Fund & Gratuity', 'Transferred to Unified Member Portal (EPFO)', 'Processed Under Bell Curve']
         ];
 
@@ -551,7 +548,7 @@ WorkLife Technologies India Pvt. Ltd.
 
           ctx.fillStyle = idx === 0 ? '#4338ca' : '#0f172a';
           ctx.font = 'bold 12px monospace';
-          ctx.fillText(r[2], tableX + 720, y + 25);
+          ctx.fillText(r[2], tableX + 730, y + 25);
 
           y += rowH;
         });
@@ -566,13 +563,12 @@ WorkLife Technologies India Pvt. Ltd.
         y += 40;
 
         // 10. Signatures and Verified Stamp Section
-        // Left: Head of HR Signature
         ctx.font = '13px system-ui, sans-serif';
         ctx.fillStyle = '#0f172a';
         ctx.fillText('Yours faithfully,', 100, y);
         y += 20;
 
-        // Draw stylish handwritten blue ink signature
+        // Handwritten blue ink signature
         ctx.save();
         ctx.strokeStyle = '#1d4ed8';
         ctx.lineWidth = 2.5;
@@ -595,49 +591,47 @@ WorkLife Technologies India Pvt. Ltd.
         ctx.fillText('Head of Human Capital & People Operations', 100, y);
         ctx.font = '12px system-ui, sans-serif';
         ctx.fillStyle = '#64748b';
-        ctx.fillText('WorkLife Technologies India Private Limited', 100, y + 20);
+        ctx.fillText(companyProfile.legalName, 100, y + 20);
 
         // Right: Official Circular Stamp Seal
         const stampX = A4_WIDTH - 260;
         const stampY = y - 25;
         ctx.save();
         ctx.translate(stampX, stampY);
-        ctx.rotate(-0.07); // Slight authentic tilted angle
+        ctx.rotate(-0.07);
 
-        // Double Stamp Circles in Crimson Red
         ctx.strokeStyle = '#dc2626';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(0, 0, 72, 0, Math.PI * 2);
+        ctx.arc(0, 0, 74, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.arc(0, 0, 64, 0, Math.PI * 2);
+        ctx.arc(0, 0, 66, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Stamp Inner Text
         ctx.fillStyle = '#dc2626';
         ctx.font = 'bold 10px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('★ WORKLIFE IT SOLUTIONS ★', 0, -42);
-        ctx.fillText('PUNE SEZ · CYBER HUB', 0, 48);
+        ctx.fillText(`★ ${companyProfile.shortName.toUpperCase()} INDIA ★`, 0, -42);
+        ctx.fillText(`${companyProfile.city.toUpperCase()} CAMPUS`, 0, 48);
 
         ctx.font = 'bold 12px system-ui, sans-serif';
         ctx.fillText('RELIEVING ORDER', 0, -10);
         ctx.fillText('& SETTLEMENT', 0, 8);
 
         ctx.font = 'bold 9px monospace';
-        ctx.fillStyle = '#16a34a'; // Green verified text
+        ctx.fillStyle = '#16a34a';
         ctx.fillText('APPROVED & SEALED', 0, 26);
 
         ctx.restore();
 
-        // 11. Bottom Page Footnote
+        // 11. Bottom Page Footnote (Mentions WorkLife IT Solutions)
         ctx.textAlign = 'center';
         ctx.font = '10px monospace';
         ctx.fillStyle = '#94a3b8';
-        ctx.fillText('System Generated Authentic Document · Digitally Signed & Sealed · Page 1 of 1', A4_WIDTH / 2, A4_HEIGHT - 65);
+        ctx.fillText('Issued & Archived via WorkLife IT Solutions Career Registry · Digitally Signed & Sealed · Page 1 of 1', A4_WIDTH / 2, A4_HEIGHT - 65);
 
         // Export as High-Quality PNG
         canvas.toBlob((blob) => {
@@ -646,7 +640,7 @@ WorkLife Technologies India Pvt. Ltd.
           const link = document.createElement('a');
           const cleanName = candidateName.trim().replace(/\s+/g, '_') || 'Employee';
           link.href = url;
-          link.download = `Relieving_Letter_${cleanName}_A4.png`;
+          link.download = `Relieving_Letter_${cleanName}_${companyProfile.code}_A4.png`;
           link.click();
           URL.revokeObjectURL(url);
           setIsGenerating(false);
@@ -664,7 +658,10 @@ WorkLife Technologies India Pvt. Ltd.
       <div className="relative w-full max-w-2xl bg-[#fffefc] border border-amber-200/80 rounded-2xl shadow-2xl overflow-hidden my-auto text-slate-800 print-modal-card">
         
         {/* Top Decorative Border */}
-        <div className="h-2 bg-gradient-to-r from-indigo-600 via-slate-800 to-amber-500 print:hidden print-hidden" />
+        <div
+          className="h-2 print:hidden print-hidden"
+          style={{ backgroundColor: lastCompany.color }}
+        />
 
         {/* Print Notice (if sandbox intercepts) */}
         {printNotice && (
@@ -674,11 +671,11 @@ WorkLife Technologies India Pvt. Ltd.
         )}
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 pb-0 flex items-center justify-between border-b border-slate-100 print:hidden print-hidden">
+        <div className="p-4 sm:p-6 pb-3 flex items-center justify-between border-b border-slate-100 print:hidden print-hidden">
           <div className="flex items-center gap-2">
             <ShieldCheck size={20} className="text-emerald-600" />
             <span className="text-xs font-mono font-bold tracking-widest text-slate-600 uppercase">
-              OFFICIAL SERVICE CERTIFICATE &amp; RELIEVING SLIP
+              OFFICIAL SERVICE CERTIFICATE · {companyProfile.shortName.toUpperCase()}
             </span>
           </div>
 
@@ -696,19 +693,19 @@ WorkLife Technologies India Pvt. Ltd.
           {/* Company Letterhead */}
           <div className="text-center border-b border-slate-200 pb-4 font-sans">
             <h2 className="text-lg font-black tracking-tight text-slate-900 font-display">
-              WORKLIFE IT SOLUTIONS PRIVATE LIMITED
+              {companyProfile.legalName}
             </h2>
             <p className="text-[11px] text-slate-600">
-              SEZ Tech Corridor, Cyber Towers Phase 1, Hinjawadi, Pune - 411057
+              {companyProfile.address}
             </p>
             <p className="text-[10px] font-mono text-slate-600 mt-1">
-              CIN: U72200PN2026PTC099482 · HR Central Operations · ISO 9001:2015
+              {companyProfile.cin} · {lastCompany.tier} Division
             </p>
           </div>
 
           {/* Letter Meta */}
           <div className="flex justify-between text-xs text-slate-600 font-mono">
-            <span>REF: WL/HR/F&amp;F/2026/{Math.floor(flight.age * 987)}</span>
+            <span>REF: {refNo}</span>
             <span>DATE: {currentDate}</span>
           </div>
 
@@ -719,11 +716,11 @@ WorkLife Technologies India Pvt. Ltd.
           </div>
 
           <p>
-            This is to certify that <strong className="text-slate-900">{candidateName}</strong> (Employee ID: <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-700 font-mono">{empId}</code>) was in active corporate service with WorkLife Technologies from age 22.0 years until retirement/exit at age <strong className="text-slate-900">{flight.age.toFixed(1)} years</strong> (Total Corporate Tenure: {tenureYears} years).
+            This is to certify that <strong className="text-slate-900">{candidateName}</strong> (Employee ID: <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-700 font-mono">{empId}</code>) was in active corporate service with <strong className="text-slate-900">{companyProfile.legalName}</strong> as their final posted organization, concluding an industry career spanning from age 22.0 years until retirement/exit at age <strong className="text-slate-900">{flight.age.toFixed(1)} years</strong> (Total Corporate Tenure: {tenureYears} years).
           </p>
 
           <p>
-            During their service, the employee held the title of <strong className="text-slate-900">&ldquo;{flight.targetRole}&rdquo;</strong> and successfully negotiated <strong>{flight.score} institutional company promotion gates</strong> across the Indian IT hiring pipeline.
+            During their career, the employee held the title of <strong className="text-slate-900">&ldquo;{flight.targetRole}&rdquo;</strong> and successfully negotiated <strong>{flight.score} institutional company promotion gates</strong> across the Indian IT hiring pipeline (employment record verified via <strong className="text-slate-900">WorkLife IT Solutions</strong> Alumni Registry).
           </p>
 
           {/* Settlement Breakdown Box */}
@@ -734,11 +731,11 @@ WorkLife Technologies India Pvt. Ltd.
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Notice Period Protocol:</span>
-              <span className="font-medium text-slate-800">Waived by management under project deallocation</span>
+              <span className="font-medium text-slate-800">Waived by {companyProfile.shortName} management</span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Asset Clearance Status:</span>
-              <span className="font-medium text-slate-800">Turnstile keycard &amp; laptop relinquished</span>
+              <span className="font-medium text-slate-800">Turnstile keycard &amp; laptop relinquished ({companyProfile.city})</span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>PF &amp; Gratuity Credited:</span>
@@ -754,13 +751,16 @@ WorkLife Technologies India Pvt. Ltd.
           <div className="pt-4 flex items-center justify-between font-sans">
             <div>
               <p className="font-bold text-xs text-slate-900">Head of Human Capital</p>
-              <p className="text-[11px] text-slate-600">WorkLife India Operations</p>
+              <p className="text-[11px] text-slate-600">{companyProfile.legalName}</p>
+              <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                Archived via WorkLife IT Solutions
+              </p>
             </div>
 
             {/* Visual Stamp */}
             <div className="border-2 border-dashed border-red-500/70 rounded-lg p-2 text-center text-red-700 transform -rotate-3 bg-red-50/50">
               <span className="text-[9px] font-black tracking-widest uppercase block">
-                ★ RELIEVING SEALED ★
+                ★ {companyProfile.shortName.toUpperCase()} SEALED ★
               </span>
               <span className="text-[8px] font-mono block text-emerald-700">NO DUES OUTSTANDING</span>
             </div>

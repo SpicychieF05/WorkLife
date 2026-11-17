@@ -319,3 +319,194 @@ export function formatPackage(lpa: number): string {
   }
   return `₹${lpa.toFixed(1)} LPA`;
 }
+
+export interface CompanyCorporateProfile {
+  shortName: string;
+  legalName: string;
+  address: string;
+  city: string;
+  cin: string;
+  code: string;
+}
+
+const CORPORATE_PROFILES: Record<string, CompanyCorporateProfile> = {
+  'TCS': {
+    shortName: 'TCS',
+    legalName: 'TATA CONSULTANCY SERVICES LIMITED',
+    address: 'TCS House, Raveline Street, Fort, Mumbai - 400001, Maharashtra, India',
+    city: 'Mumbai',
+    cin: 'CIN: L22210MH1995PLC084781 · BSE/NSE Listed',
+    code: 'TCS'
+  },
+  'Infosys': {
+    shortName: 'Infosys',
+    legalName: 'INFOSYS LIMITED',
+    address: 'Electronics City, Hosur Road, Bengaluru - 560100, Karnataka, India',
+    city: 'Bengaluru',
+    cin: 'CIN: L85110KA1981PLC013115 · CMMI Level 5',
+    code: 'INFY'
+  },
+  'Wipro': {
+    shortName: 'Wipro',
+    legalName: 'WIPRO LIMITED',
+    address: 'Doddakannelli, Sarjapur Road, Bengaluru - 560035, Karnataka, India',
+    city: 'Bengaluru',
+    cin: 'CIN: L32102KA1945PLC020800 · Global IT Services',
+    code: 'WIP'
+  },
+  'Tech Mahindra': {
+    shortName: 'Tech Mahindra',
+    legalName: 'TECH MAHINDRA LIMITED',
+    address: 'Sharda Centre, Off Karve Road, Pune - 411004, Maharashtra, India',
+    city: 'Pune',
+    cin: 'CIN: L64200MH1986PLC041370 · Telecom & Enterprise IT',
+    code: 'TECHM'
+  },
+  'Cognizant': {
+    shortName: 'Cognizant',
+    legalName: 'COGNIZANT TECHNOLOGY SOLUTIONS INDIA PVT. LTD.',
+    address: '5/535, Old Mahabalipuram Road, Okkiyam Thoraipakkam, Chennai - 600097',
+    city: 'Chennai',
+    cin: 'CIN: U72300TN2000PTC044643 · HR Central Operations',
+    code: 'CTS'
+  },
+  'Capgemini': {
+    shortName: 'Capgemini',
+    legalName: 'CAPGEMINI TECHNOLOGY SERVICES INDIA LIMITED',
+    address: 'Plot No. 14, Rajiv Gandhi Infotech Park, Hinjawadi Phase III, Pune - 411057',
+    city: 'Pune',
+    cin: 'CIN: U85110PN1993PLC145950 · ISO 9001:2015 Certified',
+    code: 'CAP'
+  },
+  'Accenture': {
+    shortName: 'Accenture',
+    legalName: 'ACCENTURE SOLUTIONS PRIVATE LIMITED',
+    address: 'Plant 3, Godrej & Boyce Complex, LBS Marg, Vikhroli West, Mumbai - 400079',
+    city: 'Mumbai',
+    cin: 'CIN: U72900MH2002PTC134242 · Technology & Strategy',
+    code: 'ACN'
+  },
+  'HCLTech': {
+    shortName: 'HCLTech',
+    legalName: 'HCL TECHNOLOGIES LIMITED',
+    address: 'Plot No. 3A, Sector 126, Noida SEZ, Gautam Buddh Nagar - 201303, UP',
+    city: 'Noida',
+    cin: 'CIN: L74140DL1991PLC046369 · Supercharging Progress',
+    code: 'HCL'
+  },
+  'IBM': {
+    shortName: 'IBM',
+    legalName: 'IBM INDIA PRIVATE LIMITED',
+    address: 'Subramanya Arcade, No. 12 Bannerghatta Road, Bengaluru - 560029, Karnataka',
+    city: 'Bengaluru',
+    cin: 'CIN: U72200KA1997PTC022382 · Global Business Services',
+    code: 'IBM'
+  },
+  'Concentrix': {
+    shortName: 'Concentrix',
+    legalName: 'CONCENTRIX DAKSH SERVICES INDIA PRIVATE LIMITED',
+    address: 'DLF Cyber City, Building 14, Phase III, Gurugram - 122002, Haryana',
+    city: 'Gurugram',
+    cin: 'CIN: U74899DL1999PTC102203 · Customer Experience Ops',
+    code: 'CNXC'
+  },
+  'Genpact': {
+    shortName: 'Genpact',
+    legalName: 'GENPACT INDIA PRIVATE LIMITED',
+    address: 'DLF City, Phase V, Sector 53, Gurugram - 122002, Haryana, India',
+    city: 'Gurugram',
+    cin: 'CIN: U73100DL2005PTC143118 · Lean Six Sigma Operations',
+    code: 'GEN'
+  },
+  'Deloitte': {
+    shortName: 'Deloitte',
+    legalName: 'DELOITTE CONSULTING INDIA PRIVATE LIMITED',
+    address: 'Meenakshi Tech Park, Survey No. 39, Gachibowli, Hyderabad - 500032',
+    city: 'Hyderabad',
+    cin: 'CIN: U72200TG2001PTC037282 · Advisory & Consulting',
+    code: 'DEL'
+  },
+  'KPMG': {
+    shortName: 'KPMG',
+    legalName: 'KPMG ASSURANCE AND CONSULTING SERVICES LLP',
+    address: 'Lodha Excelus, Apollo Mills Compound, N.M. Joshi Marg, Mumbai - 400011',
+    city: 'Mumbai',
+    cin: 'LLPIN: AAT-0367 · Risk & Assurance Division',
+    code: 'KPMG'
+  },
+  'EY': {
+    shortName: 'EY',
+    legalName: 'ERNST & YOUNG LLP',
+    address: 'Golf View Corporate Tower B, Sector 42, Gurugram - 122002, Haryana',
+    city: 'Gurugram',
+    cin: 'LLPIN: AAB-4343 · Global Delivery Services',
+    code: 'EY'
+  },
+  'PwC': {
+    shortName: 'PwC',
+    legalName: 'PRICEWATERHOUSECOOPERS PRIVATE LIMITED',
+    address: 'Plot Y-14, Block EP, Sector V, Salt Lake, Kolkata - 700091, West Bengal',
+    city: 'Kolkata',
+    cin: 'CIN: U74140WB1983PTC036093 · Deals & Transformation',
+    code: 'PWC'
+  },
+  'Amazon': {
+    shortName: 'Amazon',
+    legalName: 'AMAZON DEVELOPMENT CENTRE (INDIA) PRIVATE LIMITED',
+    address: 'Brigade Gateway, 8th Floor, 26/1 Dr. Rajkumar Road, Bengaluru - 560055',
+    city: 'Bengaluru',
+    cin: 'CIN: U72200KA2004PTC034233 · AWS & Consumer Tech',
+    code: 'AMZN'
+  },
+  'Microsoft': {
+    shortName: 'Microsoft',
+    legalName: 'MICROSOFT INDIA (R&D) PRIVATE LIMITED',
+    address: 'Microsoft Campus, Building 1, Gachibowli, Hyderabad - 500032, Telangana',
+    city: 'Hyderabad',
+    cin: 'CIN: U72200TG1998PTC029433 · Cloud & AI Engineering',
+    code: 'MSFT'
+  },
+  'Google': {
+    shortName: 'Google',
+    legalName: 'GOOGLE INDIA PRIVATE LIMITED',
+    address: 'No. 3, RMZ Infinity Tower E, Old Madras Road, Bengaluru - 560016',
+    city: 'Bengaluru',
+    cin: 'CIN: U72900KA2003PTC033028 · Core Engineering & Cloud',
+    code: 'GOOG'
+  },
+  'Meta': {
+    shortName: 'Meta',
+    legalName: 'FACEBOOK INDIA ONLINE SERVICES PRIVATE LIMITED',
+    address: 'Unit 1203, One Horizon Center, DLF Phase V, Gurugram - 122002, Haryana',
+    city: 'Gurugram',
+    cin: 'CIN: U74999DL2010PTC204646 · Reality Labs & Core Infra',
+    code: 'META'
+  },
+  'Apple': {
+    shortName: 'Apple',
+    legalName: 'APPLE INDIA PRIVATE LIMITED',
+    address: '19th Floor, Concorde Tower C, UB City, Vittal Mallya Road, Bengaluru - 560001',
+    city: 'Bengaluru',
+    cin: 'CIN: U30007KA1996PTC019630 · Hardware & Silicon Systems',
+    code: 'AAPL'
+  },
+  'Netflix': {
+    shortName: 'Netflix',
+    legalName: 'NETFLIX ENTERTAINMENT SERVICES INDIA LLP',
+    address: 'Level 11, Godrej BKC, Plot C-68, Bandra Kurla Complex, Mumbai - 400051',
+    city: 'Mumbai',
+    cin: 'LLPIN: AAI-9707 · Streaming Platform Engineering',
+    code: 'NFLX'
+  }
+};
+
+export function getCompanyCorporateProfile(company: Company): CompanyCorporateProfile {
+  return CORPORATE_PROFILES[company.name] || {
+    shortName: company.name,
+    legalName: `${company.name.toUpperCase()} INDIA PRIVATE LIMITED`,
+    address: 'SEZ Tech Corridor, Cyber Towers Phase 1, Hinjawadi, Pune - 411057',
+    city: 'Pune',
+    cin: 'CIN: U72200PN2026PTC099482 · HR Central Operations',
+    code: company.name.slice(0, 4).toUpperCase()
+  };
+}
