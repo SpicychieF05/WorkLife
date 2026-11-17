@@ -2,6 +2,7 @@ import React from 'react';
 import { FlightState } from '../types/game';
 import { formatPackage } from '../game/companies';
 import { RotateCcw, FileText, Award } from 'lucide-react';
+import { CandidatePortraitSvg } from './CandidateVectorArt';
 
 interface ExitScreenProps {
   flight: FlightState;
@@ -46,8 +47,8 @@ export const ExitScreen: React.FC<ExitScreenProps> = ({
         
         {/* Left Art Column */}
         <div className="md:w-5/12 bg-slate-900 p-6 flex flex-col items-center justify-center text-center text-white relative">
-          <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-red-500/40 flex items-center justify-center text-3xl mb-3 shadow-inner">
-            {flight.character === 'boy' ? '😵' : '😵‍💫'}
+          <div className="w-20 h-20 rounded-2xl bg-slate-800 border-2 border-red-500/50 flex items-center justify-center mb-3 shadow-inner overflow-hidden">
+            <CandidatePortraitSvg character={flight.character} size={76} />
           </div>
 
           <span className="text-[11px] font-mono tracking-widest text-red-400 uppercase font-bold">

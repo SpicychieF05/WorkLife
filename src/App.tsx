@@ -3,18 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState, useCallback } from 'react';
 import { BestScores, CareerRecord, Character, CorporateEvent, FlightState, GameMode, Track } from './types/game';
 import { GameEngine } from './game/physics';
 import { CanvasRenderer } from './game/canvasRenderer';
 import { sound } from './game/sound';
 import { StartScreen } from './components/StartScreen';
 import { HUD } from './components/HUD';
-import { ExitScreen } from './components/ExitScreen';
-import { RetirementScreen } from './components/RetirementScreen';
-import { PauseScreen } from './components/PauseScreen';
-import { RelievingLetterModal } from './components/RelievingLetterModal';
-import { CareerLogbookModal } from './components/CareerLogbookModal';
+
+const ExitScreen = lazy(() => import('./components/ExitScreen').then((m) => ({ default: m.ExitScreen })));
+const RetirementScreen = lazy(() => import('./components/RetirementScreen').then((m) => ({ default: m.RetirementScreen })));
+const PauseScreen = lazy(() => import('./components/PauseScreen').then((m) => ({ default: m.PauseScreen })));
+const RelievingLetterModal = lazy(() => import('./components/RelievingLetterModal').then((m) => ({ default: m.RelievingLetterModal })));
+const CareerLogbookModal = lazy(() => import('./components/CareerLogbookModal').then((m) => ({ default: m.CareerLogbookModal })));
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -381,49 +382,51 @@ export default function App() {
         />
       )}
 
-      {gameMode === 'PAUSED' && (
-        <PauseScreen onResume={handleResume} />
-      )}
+      <Suspense fallback={null}>
+        {gameMode === 'PAUSED' && (
+          <PauseScreen onResume={handleResume} />
+        )}
 
-      {gameMode === 'EXIT' && (
-        <ExitScreen
-          flight={flightState}
-          bestScore={bestScores[track] || 0}
-          onRestart={handleStartGame}
-          onChangeTrack={() => setGameMode('IDLE')}
-          onViewRelievingSlip={() => setShowRelieving(true)}
-        />
-      )}
+        {gameMode === 'EXIT' && (
+          <ExitScreen
+            flight={flightState}
+            bestScore={bestScores[track] || 0}
+            onRestart={handleStartGame}
+            onChangeTrack={() => setGameMode('IDLE')}
+            onViewRelievingSlip={() => setShowRelieving(true)}
+          />
+        )}
 
-      {gameMode === 'RETIRED' && (
-        <RetirementScreen
-          flight={flightState}
-          onRestart={handleStartGame}
-          onChangeTrack={() => setGameMode('IDLE')}
-          onViewRelievingSlip={() => setShowRelieving(true)}
-        />
-      )}
+        {gameMode === 'RETIRED' && (
+          <RetirementScreen
+            flight={flightState}
+            onRestart={handleStartGame}
+            onChangeTrack={() => setGameMode('IDLE')}
+            onViewRelievingSlip={() => setShowRelieving(true)}
+          />
+        )}
 
-      {/* Official Relieving & Settlement Slip Modal */}
-      {showRelieving && (
-        <RelievingLetterModal
-          flight={flightState}
-          onClose={() => setShowRelieving(false)}
-        />
-      )}
+        {/* Official Relieving & Settlement Slip Modal */}
+        {showRelieving && (
+          <RelievingLetterModal
+            flight={flightState}
+            onClose={() => setShowRelieving(false)}
+          />
+        )}
 
-      {/* Historical Career Logbook Modal */}
-      {showLogbook && (
-        <CareerLogbookModal
-          bestScores={bestScores}
-          history={history}
-          onClearHistory={() => {
-            setHistory([]);
-            localStorage.removeItem('worklife:history');
-          }}
-          onClose={() => setShowLogbook(false)}
-        />
-      )}
+        {/* Historical Career Logbook Modal */}
+        {showLogbook && (
+          <CareerLogbookModal
+            bestScores={bestScores}
+            history={history}
+            onClearHistory={() => {
+              setHistory([]);
+              localStorage.removeItem('worklife:history');
+            }}
+            onClose={() => setShowLogbook(false)}
+          />
+        )}
+      </Suspense>
     </main>
   );
 }

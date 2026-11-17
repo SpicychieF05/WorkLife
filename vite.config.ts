@@ -7,7 +7,11 @@ function socialMetaPlugin(): Plugin {
   return {
     name: 'worklife-social-meta',
     transformIndexHtml(html) {
-      const appUrl = (process.env.APP_URL || '').replace(/\/+$/, '');
+      const vercelHost =
+        process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+      const rawUrl =
+        process.env.APP_URL || (vercelHost ? `https://${vercelHost}` : '');
+      const appUrl = rawUrl.replace(/\/+$/, '');
       const bannerUrl = appUrl ? `${appUrl}/assets/og-banner.png` : '/assets/og-banner.png';
       const pageUrl = appUrl ? `${appUrl}/` : '/';
 
@@ -23,7 +27,29 @@ export default defineConfig(() => {
     plugins: [react(), tailwindcss(), socialMetaPlugin()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
+      },
+    },
+    build: {
+      target: 'es2022',
+      sourcemap: false,
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'react-vendor',
+                test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                priority: 20,
+              },
+              {
+                name: 'icons-vendor',
+                test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+                priority: 10,
+              },
+            ],
+          },
+        },
       },
     },
     server: {

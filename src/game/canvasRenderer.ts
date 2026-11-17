@@ -325,7 +325,7 @@ export class CanvasRenderer {
     ctx.translate(x, y);
     ctx.rotate(rotation);
 
-    // Manage occasional eye blink
+    // Manage occasional eye blink while alive
     this.blinkTimer++;
     if (this.blinkTimer > 160) {
       this.isBlinking = true;
@@ -335,131 +335,387 @@ export class CanvasRenderer {
       }
     }
 
-    // 1. Corporate Suit Body (bottom hemisphere)
-    ctx.fillStyle = '#1e293b'; // Navy corporate blazer
-    ctx.beginPath();
-    ctx.arc(0, 0, r, 0, Math.PI);
-    ctx.fill();
-
-    // 2. White Collar
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.moveTo(-9, 0);
-    ctx.lineTo(0, 8);
-    ctx.lineTo(9, 0);
-    ctx.closePath();
-    ctx.fill();
-
-    // 3. Corporate Red/Indigo Tie
-    ctx.fillStyle = character === 'boy' ? '#e11d48' : '#6366f1';
-    ctx.beginPath();
-    ctx.moveTo(-3, 4);
-    ctx.lineTo(3, 4);
-    ctx.lineTo(4.5, 16);
-    ctx.lineTo(0, 19);
-    ctx.lineTo(-4.5, 16);
-    ctx.closePath();
-    ctx.fill();
-
-    // 4. Head (top circle)
-    ctx.fillStyle = '#fcd34d'; // Warm stylized skin tone
-    ctx.beginPath();
-    ctx.arc(0, -5, r - 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 5. Hair Style
     if (character === 'boy') {
-      // Short professional side-part hair
-      ctx.fillStyle = '#1f2937';
-      ctx.beginPath();
-      ctx.arc(0, -9, r - 2.5, Math.PI * 0.9, Math.PI * 2.1);
-      ctx.lineTo(r - 5, -5);
-      ctx.lineTo(-r + 5, -5);
-      ctx.closePath();
-      ctx.fill();
+      this.drawMaleCandidate(ctx, r, alive, retired);
     } else {
-      // Girl hairstyle: polished corporate bob/part
-      ctx.fillStyle = '#374151';
-      ctx.beginPath();
-      ctx.arc(0, -8, r - 1.5, Math.PI * 0.8, Math.PI * 2.2);
-      ctx.lineTo(r - 1, 4);
-      ctx.lineTo(r - 5, 4);
-      ctx.lineTo(r - 5, -3);
-      ctx.lineTo(-r + 5, -3);
-      ctx.lineTo(-r + 5, 4);
-      ctx.lineTo(-r + 1, 4);
-      ctx.closePath();
-      ctx.fill();
+      this.drawFemaleCandidate(ctx, r, alive, retired);
     }
 
-    // 6. Eyes (or Glasses)
+    ctx.restore();
+  }
+
+  private drawMaleCandidate(
+    ctx: CanvasRenderingContext2D,
+    r: number,
+    alive: boolean,
+    retired: boolean
+  ): void {
+    // Exact favicon.svg / StartScreen Rahul M. vector character scaled to hitbox
+    const s = (r / 20) * 0.108;
+    ctx.save();
+    ctx.translate(-256 * s, -264 * s);
+    ctx.scale(s, s);
+
+    // 1. Corporate Suit / Blazer Shoulders with smoothly curved hem
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(76, 470);
+    ctx.bezierCurveTo(76, 366, 144, 328, 256, 328);
+    ctx.bezierCurveTo(368, 328, 436, 366, 436, 470);
+    ctx.quadraticCurveTo(256, 516, 76, 470);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 2. White Shirt Collar V
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(184, 332);
+    ctx.lineTo(256, 422);
+    ctx.lineTo(328, 332);
+    ctx.lineTo(292, 318);
+    ctx.lineTo(256, 318);
+    ctx.lineTo(220, 318);
+    ctx.closePath();
+    ctx.fill();
+
+    // 3. Corporate Indigo Tie & Knot
+    ctx.fillStyle = '#6366f1';
+    ctx.beginPath();
+    ctx.moveTo(236, 374);
+    ctx.lineTo(276, 374);
+    ctx.lineTo(290, 468);
+    ctx.lineTo(256, 496);
+    ctx.lineTo(222, 468);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#4f46e5';
+    ctx.beginPath();
+    ctx.moveTo(232, 344);
+    ctx.lineTo(280, 344);
+    ctx.lineTo(272, 380);
+    ctx.lineTo(240, 380);
+    ctx.closePath();
+    ctx.fill();
+
+    // 4. ID Lanyard Accent
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath();
+    ctx.roundRect(342, 346, 16, 58, 4);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.roundRect(328, 398, 44, 32, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#6366f1';
+    ctx.beginPath();
+    ctx.roundRect(336, 408, 28, 6, 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.beginPath();
+    ctx.roundRect(336, 418, 18, 4, 2);
+    ctx.fill();
+
+    // 5. Candidate Head
+    ctx.fillStyle = '#fcd34d';
+    ctx.beginPath();
+    ctx.arc(256, 212, 122, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 6. Side-Parted Professional Hair
+    ctx.fillStyle = '#1f2937';
+    ctx.beginPath();
+    ctx.moveTo(134, 202);
+    ctx.bezierCurveTo(134, 114, 192, 78, 262, 78);
+    ctx.bezierCurveTo(334, 78, 378, 122, 378, 202);
+    ctx.bezierCurveTo(360, 170, 332, 156, 290, 154);
+    ctx.bezierCurveTo(242, 152, 204, 170, 176, 190);
+    ctx.bezierCurveTo(158, 196, 144, 202, 134, 202);
+    ctx.closePath();
+    ctx.fill();
+
+    // 7. Spectacles Lenses & Frames
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.roundRect(156, 176, 84, 72, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.roundRect(272, 176, 84, 72, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(240, 210);
+    ctx.lineTo(272, 210);
+    ctx.stroke();
+
+    // 8. Eyes (Awake / Blinking / Knocked-out)
     if (!alive || retired) {
-      // Knocked out / retired: 'X' eyes
       ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = 2;
-      // Left eye X
+      ctx.lineWidth = 14;
       ctx.beginPath();
-      ctx.moveTo(-7, -7); ctx.lineTo(-3, -3);
-      ctx.moveTo(-3, -7); ctx.lineTo(-7, -3);
-      ctx.stroke();
-      // Right eye X
-      ctx.beginPath();
-      ctx.moveTo(3, -7); ctx.lineTo(7, -3);
-      ctx.moveTo(7, -7); ctx.lineTo(3, -3);
+      ctx.moveTo(182, 196); ctx.lineTo(214, 228);
+      ctx.moveTo(214, 196); ctx.lineTo(182, 228);
+      ctx.moveTo(298, 196); ctx.lineTo(330, 228);
+      ctx.moveTo(330, 196); ctx.lineTo(298, 228);
       ctx.stroke();
     } else if (this.isBlinking) {
-      // Closed line
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.moveTo(178, 212); ctx.lineTo(218, 212);
+      ctx.moveTo(294, 212); ctx.lineTo(334, 212);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(198, 212, 17, 0, Math.PI * 2);
+      ctx.arc(314, 212, 17, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(204, 205, 6, 0, Math.PI * 2);
+      ctx.arc(320, 205, 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 9. Determined Corporate Smirk (or Frown on exit)
+    ctx.strokeStyle = '#991b1b';
+    ctx.lineWidth = 12;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (!alive) {
+      ctx.arc(256, 294, 24, Math.PI * 1.15, Math.PI * 1.85);
+    } else {
+      ctx.moveTo(232, 284);
+      ctx.quadraticCurveTo(258, 290, 282, 276);
+    }
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  private drawFemaleCandidate(
+    ctx: CanvasRenderingContext2D,
+    r: number,
+    alive: boolean,
+    retired: boolean
+  ): void {
+    // Exact StartScreen Ananya S. vector character scaled to hitbox
+    const s = (r / 20) * 0.9;
+    ctx.save();
+    ctx.translate(0, 3 * s);
+    ctx.scale(s, s);
+
+    // 1. Streaming Flowing Hair & Ponytail Silhouette Behind Head/Shoulders
+    ctx.fillStyle = '#1e1b2e';
+    ctx.beginPath();
+    ctx.moveTo(-14, -31);
+    ctx.bezierCurveTo(-32, -29, -39, -14, -40, 4);
+    ctx.bezierCurveTo(-34, 7, -28, 3, -25, -4);
+    ctx.bezierCurveTo(-26, 9, -26, 20, -18, 23);
+    ctx.lineTo(-14, 2);
+    ctx.lineTo(15, 2);
+    ctx.lineTo(19, 20);
+    ctx.bezierCurveTo(25, 18, 27, 8, 24, -10);
+    ctx.bezierCurveTo(22, -27, 9, -34, -4, -34);
+    ctx.closePath();
+    ctx.fill();
+
+    // Hair Wave Highlight
+    ctx.strokeStyle = 'rgba(71, 85, 105, 0.65)';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-21, -22);
+    ctx.bezierCurveTo(-31, -17, -34, -7, -34, 1);
+    ctx.stroke();
+
+    // 2. Blazer Torso + V-Neck White Blouse + Teal Collar
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(0, 2, 22.5, 0, Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.moveTo(-10, 2);
+    ctx.lineTo(0, 18);
+    ctx.lineTo(10, 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#0d9488';
+    ctx.lineWidth = 2.6;
+    ctx.beginPath();
+    ctx.moveTo(-8, 3.5);
+    ctx.quadraticCurveTo(0, 11, 8, 3.5);
+    ctx.stroke();
+
+    // 3. ID Lanyard
+    ctx.fillStyle = '#0d9488';
+    ctx.fillRect(-2.5, 13, 5, 7);
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.roundRect(-5, 18, 10, 6, 1);
+    ctx.fill();
+
+    // 4. Gold Stud Earrings
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(-18.5, -3.5, 2.6, 0, Math.PI * 2);
+    ctx.arc(18.5, -3.5, 2.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 5. Oval Head
+    ctx.fillStyle = '#fde68a';
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(0, -7, 17, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 6. Full Crown Hair & Side-Swept Bangs
+    ctx.fillStyle = '#1e1b2e';
+    ctx.beginPath();
+    ctx.moveTo(-19, -8);
+    ctx.bezierCurveTo(-21, -27, -10, -34, 1, -34);
+    ctx.bezierCurveTo(12, -34, 21, -26, 19, -8);
+    ctx.bezierCurveTo(16, -14, 10, -18.5, 4, -18.5);
+    ctx.bezierCurveTo(-2, -18.5, -9, -14, -19, -8);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#312b49';
+    ctx.beginPath();
+    ctx.moveTo(-17, -12);
+    ctx.bezierCurveTo(-10, -20, -2, -22, 6, -21);
+    ctx.bezierCurveTo(12, -20, 16, -17, 18, -13);
+    ctx.bezierCurveTo(14, -24, 6, -28, -1, -28);
+    ctx.bezierCurveTo(-9, -28, -15, -22, -17, -12);
+    ctx.closePath();
+    ctx.fill();
+
+    // 7. Arched Eyebrows
+    ctx.strokeStyle = '#1e1b2e';
+    ctx.lineWidth = 1.7;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-11.5, -12.5);
+    ctx.quadraticCurveTo(-7, -15, -3, -13);
+    ctx.moveTo(3, -13);
+    ctx.quadraticCurveTo(7, -15, 11.5, -12.5);
+    ctx.stroke();
+
+    // 8. Bindi & Rosy Cheeks
+    ctx.fillStyle = '#be123c';
+    ctx.beginPath();
+    ctx.arc(0, -14, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(251, 113, 133, 0.45)';
+    ctx.beginPath();
+    ctx.ellipse(-11, -2, 2.8, 1.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(11, -2, 2.8, 1.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 9. Expressive Eyes (Awake / Blinking / Knocked-out)
+    if (!alive || retired) {
       ctx.strokeStyle = '#0f172a';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(-8, -5); ctx.lineTo(-2, -5);
-      ctx.moveTo(2, -5); ctx.lineTo(8, -5);
+      ctx.moveTo(-9.5, -9.5); ctx.lineTo(-4.5, -4.5);
+      ctx.moveTo(-4.5, -9.5); ctx.lineTo(-9.5, -4.5);
+      ctx.moveTo(4.5, -9.5); ctx.lineTo(9.5, -4.5);
+      ctx.moveTo(9.5, -9.5); ctx.lineTo(4.5, -4.5);
+      ctx.stroke();
+    } else if (this.isBlinking) {
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-11, -7); ctx.lineTo(-3, -7);
+      ctx.moveTo(3, -7); ctx.lineTo(11, -7);
       ctx.stroke();
     } else {
-      // Awake eyes
-      ctx.fillStyle = '#0f172a';
-      ctx.beginPath();
-      ctx.arc(-5, -5, 2.5, 0, Math.PI * 2);
-      ctx.arc(5, -5, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // White eye glint
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(-4, -6, 1, 0, Math.PI * 2);
-      ctx.arc(6, -6, 1, 0, Math.PI * 2);
+      ctx.ellipse(-7, -7, 4.1, 3.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(7, -7, 4.1, 3.5, 0, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(-6.6, -7, 2.4, 0, Math.PI * 2);
+      ctx.arc(7.4, -7, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(-5.7, -8, 0.95, 0, Math.PI * 2);
+      ctx.arc(8.3, -8, 0.95, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-11.8, -8.8);
+      ctx.quadraticCurveTo(-7, -11.5, -2.6, -8.4);
+      ctx.moveTo(2.6, -8.4);
+      ctx.quadraticCurveTo(7, -11.5, 11.8, -8.8);
+      ctx.stroke();
     }
 
-    // Spectacles frame (standard IT engineer signature)
-    ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 1.4;
+    // 10. Sleek Rounded Spectacles
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeStyle = '#5b21b6';
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.roundRect(-9, -9, 8, 8, 2);
-    ctx.roundRect(1, -9, 8, 8, 2);
-    ctx.moveTo(-1, -5);
-    ctx.lineTo(1, -5);
+    ctx.arc(-7, -7, 6.3, 0, Math.PI * 2);
+    ctx.fill();
     ctx.stroke();
 
-    // 7. Determined / Stressed mouth
-    ctx.strokeStyle = '#991b1b';
-    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(7, -7, 6.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-0.7, -7.5);
+    ctx.lineTo(0.7, -7.5);
+    ctx.stroke();
+
+    // 11. Warm Smile (or Frown on exit)
+    ctx.strokeStyle = '#be123c';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
     ctx.beginPath();
     if (!alive) {
-      // Frown
-      ctx.arc(0, 4, 3, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.arc(0, 5.5, 3.6, Math.PI * 1.15, Math.PI * 1.85);
     } else {
-      // Determined smirk
-      ctx.moveTo(-3, 3);
-      ctx.lineTo(3, 2);
+      ctx.moveTo(-4.5, 2);
+      ctx.quadraticCurveTo(0, 5.5, 4.5, 2);
     }
     ctx.stroke();
-
-    // 8. ID Card Lanyard hanging from neck
-    ctx.fillStyle = '#0284c7';
-    ctx.fillRect(-2, 10, 4, 6);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-4, 14, 8, 5);
 
     ctx.restore();
   }
