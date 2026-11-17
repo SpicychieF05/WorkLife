@@ -65,17 +65,30 @@ export class GameEngine {
     };
   }
 
+  private getBirdXForWidth(w: number): number {
+    // Desktop (>= 584px wide) keeps exact original bird.x = 140
+    if (w <= 0) return 140;
+    return Math.round(Math.max(58, Math.min(140, w * 0.24)));
+  }
+
   public setDimensions(w: number, h: number): void {
     this.canvasWidth = w;
     this.canvasHeight = h;
-    if (this.bird.y === 280 && h > 0) {
-      this.bird.y = h * 0.45;
+    this.bird.x = this.getBirdXForWidth(w);
+    if (h > 0) {
+      const floorY = h - 44;
+      if (this.bird.y === 280 || !this.startTime) {
+        this.bird.y = Math.min(floorY - this.bird.radius - 12, h * 0.45);
+      } else {
+        this.bird.y = Math.max(12 + this.bird.radius, Math.min(floorY - this.bird.radius, this.bird.y));
+      }
     }
   }
 
   public start(): void {
     this.startTime = performance.now();
     this.pausedElapsed = 0;
+    this.bird.x = this.getBirdXForWidth(this.canvasWidth);
     this.nextPipeSpawnX = this.canvasWidth + 120; // First pipe placed far enough for initial flap
     this.pipes = [];
     this.particles = [];
@@ -265,10 +278,24 @@ export class GameEngine {
     return 205;
   }
 
-  private spawnPipesIfNeeded(speed: number): void {
-    const spacing = this.getSpacingForAge(this.flight.age);
-    const gap = this.getGapForAge(this.flight.age);
-    const pipeWidth = 72;
+  private spawnPipesIfNeeded(_speed: number): void {
+    const baseSpacing = this.getSpacingForAge(this.flight.age);
+    const baseGap = this.getGapForAge(this.flight.age);
+
+    // Preserve exact desktop spacing/gap; adapt safely only on narrow/short screens
+    const spacing =
+      this.canvasWidth > 0 && this.canvasWidth < 480
+        ? Math.max(195, Math.min(baseSpacing, this.canvasWidth * 0.62))
+        : baseSpacing;
+
+    const floorY = Math.max(200, this.canvasHeight - 44);
+    const ceilingY = 12;
+    const playableH = Math.max(150, floorY - ceilingY);
+    const margin = playableH >= 380 ? 60 : Math.max(22, Math.floor(playableH * 0.1));
+    const maxAllowedGap = Math.max(106, playableH - margin * 2 - 20);
+    const gap = Math.min(baseGap, maxAllowedGap);
+
+    const pipeWidth = this.canvasWidth > 0 && this.canvasWidth < 400 ? 62 : 72;
 
     const lastPipe = this.pipes[this.pipes.length - 1];
     const rightEdge = lastPipe ? lastPipe.x : this.canvasWidth;
@@ -278,8 +305,8 @@ export class GameEngine {
       const company = getCompanyForProgression(this.flight.score, this.flight.age, ring);
 
       // Safe lane calculation
-      const minTopHeight = 60;
-      const maxTopHeight = this.canvasHeight - 44 - gap - 60;
+      const minTopHeight = ceilingY + margin;
+      const maxTopHeight = Math.max(minTopHeight, floorY - gap - margin);
       const topHeight = minTopHeight + Math.random() * (maxTopHeight - minTopHeight);
       const bottomY = topHeight + gap;
 

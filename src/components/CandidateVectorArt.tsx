@@ -257,10 +257,10 @@ export const CareerStageIllustration: React.FC<StageIllustrationProps> = ({
   const domainInfo = getDomainOption(domain);
 
   return (
-    <div className="relative w-full h-full min-h-[260px] lg:min-h-[460px] rounded-2xl overflow-hidden bg-[#0f172a] border border-slate-800 flex flex-col justify-between">
+    <div className="@container relative w-full h-full min-h-[210px] sm:min-h-[260px] lg:min-h-[420px] rounded-2xl overflow-hidden bg-[#0f172a] border border-slate-800 flex flex-col justify-between">
       {/* Live Career ID Header Strip */}
-      <div className="relative z-10 flex items-center justify-between px-5 pt-4 pb-2 border-b border-slate-800/80 bg-slate-900/60">
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="relative z-10 flex items-center justify-between gap-2 px-4 sm:px-5 pt-3.5 pb-2 border-b border-slate-800/80 bg-slate-900/60">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 overflow-hidden">
             <CandidatePortraitSvg character={character} size={30} />
           </div>
@@ -271,14 +271,14 @@ export const CareerStageIllustration: React.FC<StageIllustrationProps> = ({
             </span>
           </div>
         </div>
-        <div className="text-right shrink-0 pl-3">
+        <div className="text-right shrink-0 pl-2">
           <div className="text-[10px] uppercase tracking-wider text-slate-400">Starting CTC</div>
-          <div className="text-sm font-mono font-bold text-amber-400 tabular-nums">{startingLpa}</div>
+          <div className="text-sm font-mono font-bold text-amber-400 tabular-nums whitespace-nowrap">{startingLpa}</div>
         </div>
       </div>
 
       {/* Main SVG Arcade Vector Artwork */}
-      <div className="relative flex-1 w-full flex items-center justify-center">
+      <div className="relative flex-1 w-full max-h-[34dvh] md:max-h-[40dvh] lg:max-h-none flex items-center justify-center">
         <svg
           viewBox="0 0 600 400"
           className="w-full h-full block"
@@ -615,21 +615,21 @@ export const CareerStageIllustration: React.FC<StageIllustrationProps> = ({
       </div>
 
       {/* Bottom 4-Tier Career Ladder Strip */}
-      <div className="relative z-10 grid grid-cols-4 gap-2 px-4 py-3 bg-slate-950/90 border-t border-slate-800 text-left">
+      <div className="relative z-10 grid grid-cols-2 @[400px]:grid-cols-4 gap-x-3 gap-y-2 px-4 py-3 bg-slate-950/90 border-t border-slate-800 text-left">
         <div>
-          <div className="text-[10px] font-mono text-sky-400">22–31 YRS</div>
+          <div className="text-[10px] font-mono tabular-nums text-sky-400">22–31 YRS</div>
           <div className="text-xs font-semibold text-white truncate">Mass Hiring</div>
         </div>
         <div>
-          <div className="text-[10px] font-mono text-indigo-400">31–41 YRS</div>
+          <div className="text-[10px] font-mono tabular-nums text-indigo-400">31–41 YRS</div>
           <div className="text-xs font-semibold text-white truncate">Global MNC</div>
         </div>
         <div>
-          <div className="text-[10px] font-mono text-amber-400">41–51 YRS</div>
+          <div className="text-[10px] font-mono tabular-nums text-amber-400">41–51 YRS</div>
           <div className="text-xs font-semibold text-white truncate">Big 4 Partner</div>
         </div>
         <div>
-          <div className="text-[10px] font-mono text-emerald-400">51–60 YRS</div>
+          <div className="text-[10px] font-mono tabular-nums text-emerald-400">51–60 YRS</div>
           <div className="text-xs font-semibold text-white truncate">FAANG → Retire</div>
         </div>
       </div>

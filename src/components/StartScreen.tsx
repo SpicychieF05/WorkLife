@@ -66,11 +66,11 @@ export const StartScreen: React.FC<StartScreenProps> = ({
   const currentBest = bestScores[track] || 0;
 
   return (
-    <div className="absolute inset-0 z-30 overflow-y-auto bg-[#eef0f5] text-slate-800">
-      <div className="min-h-full w-full flex items-center justify-center p-3 sm:p-5 lg:p-6">
-        <div className="w-full max-w-6xl bg-white border border-slate-200 shadow-xl rounded-2xl p-4 sm:p-6 flex flex-col gap-4">
+    <div className="absolute inset-0 z-30 overflow-y-auto overflow-x-hidden bg-[#eef0f5] text-slate-800">
+      <div className="min-h-full w-full flex items-center justify-center safe-area-pad">
+        <div className="@container w-full max-w-6xl bg-white border border-slate-200 shadow-xl rounded-2xl p-[clamp(0.875rem,2vw,1.75rem)] flex flex-col gap-4 my-auto">
           {/* Top Bar */}
-          <header className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+          <header className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <img
                 src="/assets/favicon.svg"
@@ -87,11 +87,11 @@ export const StartScreen: React.FC<StartScreenProps> = ({
               </span>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <button
                 type="button"
                 onClick={onOpenLogbook}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 min-h-[40px] rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors whitespace-nowrap shrink-0"
               >
                 <History size={15} />
                 <span>Career Logbook</span>
@@ -99,7 +99,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
               <button
                 type="button"
                 onClick={onToggleSound}
-                className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
+                className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
                 title={soundEnabled ? 'Mute sound (M)' : 'Unmute sound (M)'}
                 aria-label="Toggle Sound"
               >
@@ -108,7 +108,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
               <button
                 type="button"
                 onClick={onToggleFullscreen}
-                className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
+                className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
                 title="Toggle Fullscreen (F)"
                 aria-label="Toggle Fullscreen"
               >
@@ -119,8 +119,8 @@ export const StartScreen: React.FC<StartScreenProps> = ({
 
           {/* Main 2-Column Hero Stage & Career Console */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-7 items-stretch">
-            {/* Left Column: Animated Vector Skyline & Live Candidate Flight Preview */}
-            <div className="lg:col-span-6 flex flex-col">
+            {/* Left Column: Animated Vector Skyline & Live Candidate Flight Preview (auto-hidden only on ultra-short landscape phones <= 450px tall so Start CTA stays immediate) */}
+            <div className="lg:col-span-6 flex flex-col [@media(max-height:450px)]:hidden">
               <CareerStageIllustration
                 character={character}
                 candidateName={candidateName}
@@ -130,27 +130,27 @@ export const StartScreen: React.FC<StartScreenProps> = ({
             </div>
 
             {/* Right Column: Onboarding Controls & Launch */}
-            <div className="lg:col-span-6 flex flex-col justify-between gap-3.5">
+            <div className="lg:col-span-6 flex flex-col justify-between gap-3.5 min-w-0">
               {/* Hero Title & Hook */}
               <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[clamp(0.6875rem,1.2vw,0.75rem)] font-medium text-slate-500">
                   <span>Age 22 to 60</span>
                   <span aria-hidden="true">·</span>
                   <span>21 Corporate Gates</span>
                   <span aria-hidden="true">·</span>
                   <span>Instant Relieving Slip</span>
                 </div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0f172a] tracking-tight leading-[1.05]">
+                <h1 className="text-[clamp(1.75rem,3.4vw,2.5rem)] font-extrabold text-[#0f172a] tracking-tight leading-[1.05]">
                   Hire &amp; Fire<span className="text-amber-500">.</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-lg">
+                <p className="text-[clamp(0.75rem,1.4vw,0.875rem)] text-slate-600 leading-relaxed max-w-lg">
                   Every gate is a company. Climb from campus placement to FAANG, dodge layoffs, and retire at 60 whether you like it or not.
                 </p>
               </div>
 
               {/* Employee Name Input */}
               <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <label
                     htmlFor="employee-name"
                     className="text-xs font-semibold text-slate-700 flex items-center gap-1.5"
@@ -169,7 +169,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                   onChange={(e) => onChangeCandidateName(e.target.value)}
                   placeholder="Enter your name (e.g. Chirantan Mallick)"
                   maxLength={36}
-                  className="w-full px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all placeholder:text-slate-400 placeholder:font-normal"
+                  className="w-full min-h-[42px] px-3.5 py-2 bg-slate-50 rounded-xl border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all placeholder:text-slate-400 placeholder:font-normal"
                 />
               </div>
 
@@ -182,7 +182,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                   <button
                     type="button"
                     onClick={() => onSelectCharacter('boy')}
-                    className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-3 p-2.5 min-h-[56px] rounded-xl border text-left transition-all ${
                       character === 'boy'
                         ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-md'
                         : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
@@ -200,7 +200,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                   <button
                     type="button"
                     onClick={() => onSelectCharacter('girl')}
-                    className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
+                    className={`flex items-center gap-3 p-2.5 min-h-[56px] rounded-xl border text-left transition-all ${
                       character === 'girl'
                         ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-md'
                         : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
@@ -230,7 +230,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                         key={item.id}
                         type="button"
                         onClick={() => onSelectDomain(item.id)}
-                        className={`px-3 py-2 rounded-xl border text-left transition-all ${
+                        className={`px-3 py-2 min-h-[48px] rounded-xl border text-left transition-all ${
                           selected
                             ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-sm'
                             : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
@@ -259,7 +259,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                         key={item.id}
                         type="button"
                         onClick={() => onSelectTrack(item.id)}
-                        className={`p-2.5 rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
+                        className={`p-2.5 min-h-[64px] rounded-xl border text-left flex flex-col justify-between gap-1 transition-all ${
                           selected
                             ? 'bg-[#1e293b] text-white border-[#1e293b] shadow-md'
                             : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
@@ -289,7 +289,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                 <button
                   type="button"
                   onClick={onStart}
-                  className="w-full py-3 px-6 rounded-xl bg-[#1e293b] text-white hover:bg-indigo-600 transition-colors font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-[0.99]"
+                  className="w-full min-h-[46px] py-3 px-6 rounded-xl bg-[#1e293b] text-white hover:bg-indigo-600 transition-colors font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10 active:scale-[0.99]"
                 >
                   <Play size={16} fill="currentColor" />
                   <span>Start your career →</span>
@@ -300,7 +300,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                     <kbd className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded font-mono text-[10px] text-slate-700">
                       Space
                     </kbd>
-                    <span>or click/tap anywhere to jump</span>
+                    <span>or tap/click anywhere to jump</span>
                   </div>
 
                   <div className="flex items-center gap-1.5 font-medium">

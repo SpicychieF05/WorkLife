@@ -197,8 +197,10 @@ export default function App() {
     }
   }, [gameMode]);
 
-  // Canvas Action / Jump Trigger
-  const handleCanvasInteraction = useCallback(() => {
+  // Canvas Action / Jump Trigger (unified Pointer Event avoids touch+click double-flap)
+  const handleCanvasPointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
     if (gameMode === 'PLAYING') {
       engineRef.current?.flap();
     } else if (gameMode === 'IDLE') {
@@ -256,19 +258,20 @@ export default function App() {
     };
   }, [gameMode, handlePause]);
 
-  // Canvas Resize Handler
+  // Canvas Resize Handler (supports window, orientation, visualViewport & container resize)
   useEffect(() => {
     const updateCanvasSize = () => {
       const canvas = canvasRef.current;
       const container = containerRef.current;
       if (!canvas || !container) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
       const width = container.clientWidth;
       const height = container.clientHeight;
+      if (width <= 0 || height <= 0) return;
 
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
@@ -279,7 +282,21 @@ export default function App() {
 
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
-    return () => window.removeEventListener('resize', updateCanvasSize);
+    window.addEventListener('orientationchange', updateCanvasSize);
+    window.visualViewport?.addEventListener('resize', updateCanvasSize);
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      observer = new ResizeObserver(updateCanvasSize);
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize);
+      window.removeEventListener('orientationchange', updateCanvasSize);
+      window.visualViewport?.removeEventListener('resize', updateCanvasSize);
+      observer?.disconnect();
+    };
   }, []);
 
   // Main 60 FPS Render & Physics Loop
@@ -296,7 +313,7 @@ export default function App() {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
       const width = canvas.width / dpr;
       const height = canvas.height / dpr;
 
@@ -361,14 +378,13 @@ export default function App() {
   return (
     <main
       ref={containerRef}
-      className="relative w-screen h-screen overflow-hidden bg-[#eef0f5] select-none font-sans"
+      className="relative w-full h-dvh overflow-hidden bg-[#eef0f5] select-none font-sans"
     >
       {/* 2D Canvas Stage */}
       <canvas
         ref={canvasRef}
-        onClick={handleCanvasInteraction}
-        onTouchStart={handleCanvasInteraction}
-        className="absolute inset-0 block cursor-pointer z-10"
+        onPointerDown={handleCanvasPointerDown}
+        className="absolute inset-0 block cursor-pointer z-10 touch-none"
       />
 
       {/* Screen Overlays */}

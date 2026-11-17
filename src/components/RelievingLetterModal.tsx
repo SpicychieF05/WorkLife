@@ -654,57 +654,58 @@ ${companyProfile.legalName}
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm overflow-y-auto print-modal-overlay">
-      <div className="relative w-full max-w-2xl bg-[#fffefc] border border-amber-200/80 rounded-2xl shadow-2xl overflow-hidden my-auto text-slate-800 print-modal-card">
+    <div className="fixed inset-0 z-50 safe-area-pad flex items-center justify-center p-2.5 sm:p-5 bg-black/60 backdrop-blur-sm print-modal-overlay">
+      <div className="relative w-full max-w-2xl max-h-[calc(100dvh-1.25rem)] sm:max-h-[calc(100dvh-2.5rem)] flex flex-col bg-[#fffefc] border border-amber-200/80 rounded-2xl shadow-2xl overflow-hidden text-slate-800 print-modal-card">
         
         {/* Top Decorative Border */}
         <div
-          className="h-2 print:hidden print-hidden"
+          className="h-2 shrink-0 print:hidden print-hidden"
           style={{ backgroundColor: lastCompany.color }}
         />
 
         {/* Print Notice (if sandbox intercepts) */}
         {printNotice && (
-          <div className="p-2.5 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs text-center font-medium print:hidden print-hidden">
+          <div className="p-2.5 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs text-center font-medium shrink-0 print:hidden print-hidden">
             {printNotice}
           </div>
         )}
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 pb-3 flex items-center justify-between border-b border-slate-100 print:hidden print-hidden">
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={20} className="text-emerald-600" />
-            <span className="text-xs font-mono font-bold tracking-widest text-slate-600 uppercase">
+        <div className="px-4 py-3 sm:p-6 sm:pb-3 flex items-center justify-between gap-2 border-b border-slate-100 shrink-0 print:hidden print-hidden">
+          <div className="flex items-center gap-2 min-w-0">
+            <ShieldCheck size={20} className="text-emerald-600 shrink-0" />
+            <span className="text-[11px] sm:text-xs font-mono font-bold tracking-wider sm:tracking-widest text-slate-600 uppercase truncate">
               OFFICIAL SERVICE CERTIFICATE · {companyProfile.shortName.toUpperCase()}
             </span>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            aria-label="Close Certificate"
+            className="min-w-[40px] min-h-[40px] p-2 rounded-lg text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors flex items-center justify-center shrink-0 cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Letter Body (Paper Style) */}
-        <div className="p-6 sm:p-8 space-y-4 font-serif text-slate-800 text-xs sm:text-sm leading-relaxed max-h-[60vh] overflow-y-auto print-modal-body">
+        <div className="p-4 sm:p-8 space-y-4 font-serif text-slate-800 text-xs sm:text-sm leading-relaxed flex-1 min-h-0 overflow-y-auto print-modal-body">
           
           {/* Company Letterhead */}
           <div className="text-center border-b border-slate-200 pb-4 font-sans">
-            <h2 className="text-lg font-black tracking-tight text-slate-900 font-display">
+            <h2 className="text-base sm:text-lg font-black tracking-tight text-slate-900 font-display">
               {companyProfile.legalName}
             </h2>
             <p className="text-[11px] text-slate-600">
               {companyProfile.address}
             </p>
-            <p className="text-[10px] font-mono text-slate-600 mt-1">
+            <p className="text-[10px] font-mono text-slate-600 mt-1 break-words">
               {companyProfile.cin} · {lastCompany.tier} Division
             </p>
           </div>
 
           {/* Letter Meta */}
-          <div className="flex justify-between text-xs text-slate-600 font-mono">
+          <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-xs text-slate-600 font-mono tabular-nums">
             <span>REF: {refNo}</span>
             <span>DATE: {currentDate}</span>
           </div>
@@ -716,7 +717,7 @@ ${companyProfile.legalName}
           </div>
 
           <p>
-            This is to certify that <strong className="text-slate-900">{candidateName}</strong> (Employee ID: <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-700 font-mono">{empId}</code>) was in active corporate service with <strong className="text-slate-900">{companyProfile.legalName}</strong> as their final posted organization, concluding an industry career spanning from age 22.0 years until retirement/exit at age <strong className="text-slate-900">{flight.age.toFixed(1)} years</strong> (Total Corporate Tenure: {tenureYears} years).
+            This is to certify that <strong className="text-slate-900">{candidateName}</strong> (Employee ID: <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-700 font-mono">{empId}</code>) was in active corporate service with <strong className="text-slate-900">{companyProfile.legalName}</strong> as their final posted organization, concluding an industry career spanning from age 22.0 years until retirement/exit at age <strong className="text-slate-900 tabular-nums">{flight.age.toFixed(1)} years</strong> (Total Corporate Tenure: {tenureYears} years).
           </p>
 
           <p>
@@ -724,22 +725,22 @@ ${companyProfile.legalName}
           </p>
 
           {/* Settlement Breakdown Box */}
-          <div className="font-sans p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-            <div className="font-bold text-slate-900 flex justify-between border-b border-slate-200 pb-1.5">
+          <div className="font-sans p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 text-xs">
+            <div className="font-bold text-slate-900 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-1.5">
               <span>Full &amp; Final Remuneration Summary</span>
-              <span className="font-mono text-indigo-600 font-bold">{finalCTC}</span>
+              <span className="font-mono tabular-nums text-indigo-600 font-bold">{finalCTC}</span>
             </div>
-            <div className="flex justify-between text-slate-600">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-4 text-slate-600">
               <span>Notice Period Protocol:</span>
-              <span className="font-medium text-slate-800">Waived by {companyProfile.shortName} management</span>
+              <span className="font-medium text-slate-800 sm:text-right">Waived by {companyProfile.shortName} management</span>
             </div>
-            <div className="flex justify-between text-slate-600">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-4 text-slate-600">
               <span>Asset Clearance Status:</span>
-              <span className="font-medium text-slate-800">Turnstile keycard &amp; laptop relinquished ({companyProfile.city})</span>
+              <span className="font-medium text-slate-800 sm:text-right">Turnstile keycard &amp; laptop relinquished ({companyProfile.city})</span>
             </div>
-            <div className="flex justify-between text-slate-600">
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-0.5 sm:gap-4 text-slate-600">
               <span>PF &amp; Gratuity Credited:</span>
-              <span className="font-medium text-slate-800">Subject to 6-month bell-curve processing</span>
+              <span className="font-medium text-slate-800 sm:text-right">Subject to 6-month bell-curve processing</span>
             </div>
           </div>
 
@@ -748,7 +749,7 @@ ${companyProfile.legalName}
           </p>
 
           {/* HR Signature Stamp */}
-          <div className="pt-4 flex items-center justify-between font-sans">
+          <div className="pt-4 flex flex-wrap items-center justify-between gap-4 font-sans">
             <div>
               <p className="font-bold text-xs text-slate-900">Head of Human Capital</p>
               <p className="text-[11px] text-slate-600">{companyProfile.legalName}</p>
@@ -758,7 +759,7 @@ ${companyProfile.legalName}
             </div>
 
             {/* Visual Stamp */}
-            <div className="border-2 border-dashed border-red-500/70 rounded-lg p-2 text-center text-red-700 transform -rotate-3 bg-red-50/50">
+            <div className="border-2 border-dashed border-red-500/70 rounded-lg p-2 text-center text-red-700 transform -rotate-3 bg-red-50/50 shrink-0">
               <span className="text-[9px] font-black tracking-widest uppercase block">
                 ★ {companyProfile.shortName.toUpperCase()} SEALED ★
               </span>
@@ -769,10 +770,10 @@ ${companyProfile.legalName}
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2.5 print:hidden print-hidden">
+        <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 print:hidden print-hidden shrink-0">
           <button
             onClick={handleCopy}
-            className="py-2.5 px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+            className="min-h-[42px] py-2.5 px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
           >
             {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
             <span>{copied ? 'Copied Text!' : 'Copy Text'}</span>
@@ -780,7 +781,7 @@ ${companyProfile.legalName}
 
           <button
             onClick={handlePrint}
-            className="py-2.5 px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+            className="min-h-[42px] py-2.5 px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
             title="Print or Save as PDF"
           >
             <Printer size={14} />
@@ -791,7 +792,7 @@ ${companyProfile.legalName}
           <button
             onClick={handleDownloadA4Image}
             disabled={isGenerating}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[#1e293b] hover:bg-indigo-600 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-75"
+            className="flex-1 min-w-[190px] min-h-[42px] py-2.5 px-4 rounded-xl bg-[#1e293b] hover:bg-indigo-600 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-75 cursor-pointer"
           >
             <Download size={14} />
             <span>{isGenerating ? 'Generating A4 Image...' : 'Download A4 Letter (Image)'}</span>
