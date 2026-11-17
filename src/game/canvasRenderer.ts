@@ -1,5 +1,11 @@
 import { Bird, Character, Pipe } from '../types/game';
 
+export interface WarmupRenderState {
+  controlTaken: boolean;
+  hoverRemainingMs: number;
+  runwayIntroAlpha: number;
+}
+
 export interface RenderContext {
   ctx: CanvasRenderingContext2D;
   width: number;
@@ -11,6 +17,7 @@ export interface RenderContext {
   pipes: Pipe[];
   age: number;
   particles: Particle[];
+  warmup?: WarmupRenderState;
 }
 
 export interface Particle {
@@ -31,7 +38,7 @@ export class CanvasRenderer {
   private isBlinking = false;
 
   public render(data: RenderContext): void {
-    const { ctx, width, height, dpr, scrollOffset, bird, character, pipes, age, particles } = data;
+    const { ctx, width, height, dpr, scrollOffset, bird, character, pipes, age, particles, warmup } = data;
 
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -48,10 +55,136 @@ export class CanvasRenderer {
     // 4. Draw Floor & Ceiling Borders
     this.drawBorders(ctx, width, height, scrollOffset);
 
-    // 5. Draw Procedural Candidate Avatar
+    // 5. Hover Readiness Halo (only during initial 5s grace window)
+    if (warmup && !warmup.controlTaken && warmup.hoverRemainingMs > 0 && bird.alive && !bird.retired) {
+      this.drawHoverHalo(ctx, bird, warmup.hoverRemainingMs);
+    }
+
+    // 6. Draw Procedural Candidate Avatar
     this.drawCandidate(ctx, bird, character);
 
+    // 7. Draw Warm-Up / Hover Countdown Cue
+    if (warmup && bird.alive && !bird.retired) {
+      this.drawWarmupCue(ctx, width, height, warmup);
+    }
+
     ctx.restore();
+  }
+
+  private drawHoverHalo(
+    ctx: CanvasRenderingContext2D,
+    bird: Bird,
+    hoverRemainingMs: number
+  ): void {
+    const isUrgent = hoverRemainingMs <= 2000;
+    const progress = Math.max(0, Math.min(1, hoverRemainingMs / 5000));
+
+    ctx.save();
+    ctx.translate(bird.x, bird.y);
+
+    // Soft ambient hover glow
+    ctx.fillStyle = isUrgent ? 'rgba(245, 158, 11, 0.14)' : 'rgba(99, 102, 241, 0.14)';
+    ctx.beginPath();
+    ctx.arc(0, 0, bird.radius + 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Shrinking circular countdown arc around avatar
+    ctx.strokeStyle = isUrgent ? '#f59e0b' : '#4f46e5';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(
+      0,
+      0,
+      bird.radius + 10,
+      -Math.PI / 2,
+      -Math.PI / 2 + Math.PI * 2 * progress
+    );
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  private drawWarmupCue(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    warmup: WarmupRenderState
+  ): void {
+    if (!warmup.controlTaken && warmup.hoverRemainingMs > 0) {
+      const secsLeft = Math.max(1, Math.ceil(warmup.hoverRemainingMs / 1000));
+      const progress = Math.max(0, Math.min(1, warmup.hoverRemainingMs / 5000));
+      const isUrgent = warmup.hoverRemainingMs <= 2000;
+
+      const cardW = Math.min(340, Math.max(248, width - 32));
+      const cardH = 62;
+      const cardX = (width - cardW) / 2;
+      // Place cleanly in lower-center sky above the floor and clear of portrait/landscape HUD
+      const cardY = Math.min(height - 122, Math.max(132, height * 0.68));
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+      ctx.strokeStyle = isUrgent ? 'rgba(245, 158, 11, 0.7)' : 'rgba(148, 163, 184, 0.38)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      // Primary instruction
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${width < 400 ? 12 : 13}px "DM Sans", system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Tap screen or press Space to fly', width / 2, cardY + 21);
+
+      // Countdown subtext
+      ctx.fillStyle = isUrgent ? '#fbbf24' : '#cbd5e1';
+      ctx.font = `600 11px ui-monospace, SFMono-Regular, Menlo, monospace`;
+      ctx.fillText(
+        `Hovering · Gravity drops in ${secsLeft}s`,
+        width / 2,
+        cardY + 40
+      );
+
+      // Progress bar along bottom inside card
+      const barPad = 14;
+      const barW = cardW - barPad * 2;
+      const barY = cardY + cardH - 8;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+      ctx.beginPath();
+      ctx.roundRect(cardX + barPad, barY, barW, 3.5, 2);
+      ctx.fill();
+
+      ctx.fillStyle = isUrgent ? '#f59e0b' : '#818cf8';
+      ctx.beginPath();
+      ctx.roundRect(cardX + barPad, barY, barW * progress, 3.5, 2);
+      ctx.fill();
+
+      ctx.restore();
+      return;
+    }
+
+    if (warmup.controlTaken && warmup.runwayIntroAlpha > 0.02) {
+      const pillW = Math.min(320, Math.max(230, width - 36));
+      const pillH = 30;
+      const pillX = (width - pillW) / 2;
+      const pillY = Math.min(height - 96, Math.max(122, height * 0.22));
+
+      ctx.save();
+      ctx.globalAlpha = warmup.runwayIntroAlpha;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 999);
+      ctx.fill();
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = `600 ${width < 380 ? 10.5 : 11.5}px "DM Sans", system-ui, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Open runway · First company gate incoming', width / 2, pillY + pillH / 2);
+      ctx.restore();
+    }
   }
 
   private drawBackground(

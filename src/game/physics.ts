@@ -19,10 +19,23 @@ export class GameEngine {
   public eventTimer: number = 0;
   private triggeredEventIds: Set<string> = new Set();
 
+  private static readonly HOVER_DURATION_MS = 5000;
+  private static readonly MIN_FIRST_PIPE_DISTANCE_FROM_BIRD = 792; // ~5.5s at 2.4px/frame * 60fps
+
   private canvasWidth: number = 800;
   private canvasHeight: number = 600;
   private nextPipeId: number = 1;
-  private nextPipeSpawnX: number = 420;
+
+  public controlTaken: boolean = false;
+  public hoverRemainingMs: number = GameEngine.HOVER_DURATION_MS;
+  public runwayIntroAlpha: number = 0;
+
+  private hoverStartTime: number = 0;
+  private careerStartTime: number = 0;
+  private hoverPausedElapsed: number = 0;
+  private careerPausedElapsed: number = 0;
+  private lastFrameTime: number = 0;
+  private hoverAnchorY: number = 280;
 
   // Track initial base packages (LPA)
   private readonly trackBaseLPA: Record<Track, number> = {
@@ -76,9 +89,10 @@ export class GameEngine {
     this.canvasHeight = h;
     this.bird.x = this.getBirdXForWidth(w);
     if (h > 0) {
-      const floorY = h - 44;
-      if (this.bird.y === 280 || !this.startTime) {
-        this.bird.y = Math.min(floorY - this.bird.radius - 12, h * 0.45);
+      const floorY = Math.max(200, h - 44);
+      this.hoverAnchorY = Math.min(floorY - this.bird.radius - 12, h * 0.45);
+      if (this.bird.y === 280 || !this.startTime || !this.controlTaken) {
+        this.bird.y = this.hoverAnchorY;
       } else {
         this.bird.y = Math.max(12 + this.bird.radius, Math.min(floorY - this.bird.radius, this.bird.y));
       }
@@ -86,10 +100,27 @@ export class GameEngine {
   }
 
   public start(): void {
-    this.startTime = performance.now();
+    const now = performance.now();
+    this.startTime = now;
+    this.hoverStartTime = now;
+    this.careerStartTime = 0;
     this.pausedElapsed = 0;
+    this.hoverPausedElapsed = 0;
+    this.careerPausedElapsed = 0;
+    this.pauseTimestamp = 0;
+    this.lastFrameTime = now;
+
+    this.controlTaken = false;
+    this.hoverRemainingMs = GameEngine.HOVER_DURATION_MS;
+    this.runwayIntroAlpha = 1;
+
     this.bird.x = this.getBirdXForWidth(this.canvasWidth);
-    this.nextPipeSpawnX = this.canvasWidth + 120; // First pipe placed far enough for initial flap
+    const floorY = Math.max(200, this.canvasHeight - 44);
+    this.hoverAnchorY = Math.min(floorY - this.bird.radius - 12, this.canvasHeight * 0.45);
+    this.bird.y = this.hoverAnchorY;
+    this.bird.vy = 0;
+    this.bird.rotation = 0;
+
     this.pipes = [];
     this.particles = [];
     this.triggeredEventIds.clear();
@@ -104,14 +135,34 @@ export class GameEngine {
 
   public resume(): void {
     if (this.pauseTimestamp > 0) {
-      this.pausedElapsed += (performance.now() - this.pauseTimestamp);
+      const now = performance.now();
+      const delta = now - this.pauseTimestamp;
+      this.pausedElapsed += delta;
+      if (!this.controlTaken) {
+        this.hoverPausedElapsed += delta;
+      } else {
+        this.careerPausedElapsed += delta;
+      }
       this.pauseTimestamp = 0;
+      this.lastFrameTime = now;
       sound.startBed();
     }
   }
 
+  private activateControl(now: number): void {
+    this.controlTaken = true;
+    this.hoverRemainingMs = 0;
+    this.careerStartTime = now;
+    this.careerPausedElapsed = 0;
+    this.bird.vy = 0;
+  }
+
   public flap(): void {
     if (!this.bird.alive || this.bird.retired) return;
+
+    if (!this.controlTaken) {
+      this.activateControl(performance.now());
+    }
 
     this.bird.vy = -7.4;
     sound.playFlap();
@@ -133,15 +184,38 @@ export class GameEngine {
     }
   }
 
-  public update(): 'RUNNING' | 'EXIT' | 'RETIRED' {
+  public update(now: number = performance.now()): 'RUNNING' | 'EXIT' | 'RETIRED' {
     if (this.flight.cause) {
       return this.flight.cause === 'clock' ? 'RETIRED' : 'EXIT';
     }
 
-    // 1. Calculate Elapsed Wall-Clock Time & Age
-    const now = performance.now();
-    const effectiveNow = this.pauseTimestamp > 0 ? this.pauseTimestamp : now;
-    const elapsedMs = Math.max(0, effectiveNow - this.startTime - this.pausedElapsed);
+    // Delta-time normalization anchored to 60 FPS so 90Hz/120Hz phones match desktop cadence
+    const rawDtMs = this.lastFrameTime > 0 ? now - this.lastFrameTime : 16.6667;
+    this.lastFrameTime = now;
+    const dtMs = Math.max(4, Math.min(50, rawDtMs));
+    const dtScale = dtMs / (1000 / 60);
+    const rotBlend = 1 - Math.pow(1 - 0.2, dtScale);
+
+    // 0. 5-Second Hover Grace Period before gravity engages (unless player takes control earlier)
+    if (!this.controlTaken) {
+      const hoverElapsedMs = Math.max(0, now - this.hoverStartTime - this.hoverPausedElapsed);
+      this.hoverRemainingMs = Math.max(0, GameEngine.HOVER_DURATION_MS - hoverElapsedMs);
+
+      if (this.hoverRemainingMs > 0) {
+        this.scrollOffset += 2.4 * dtScale;
+        this.bird.y = this.hoverAnchorY + Math.sin(hoverElapsedMs * 0.0055) * 8;
+        this.bird.vy = 0;
+        this.bird.rotation += (0 - this.bird.rotation) * rotBlend;
+        this.updateParticles(dtScale);
+        return 'RUNNING';
+      }
+
+      // 5 seconds elapsed without input -> release control and let gravity pull the candidate down
+      this.activateControl(now);
+    }
+
+    // 1. Calculate Elapsed Career Wall-Clock Time & Age (begins once control is active)
+    const elapsedMs = Math.max(0, now - this.careerStartTime - this.careerPausedElapsed);
     const elapsedSec = elapsedMs / 1000;
     this.flight.elapsedSeconds = elapsedSec;
 
@@ -162,32 +236,39 @@ export class GameEngine {
 
     // 3. Dynamic Speed & Pacing based on age
     const currentSpeed = this.getSpeedForAge(this.flight.age);
-    this.scrollOffset += currentSpeed;
+    this.scrollOffset += currentSpeed * dtScale;
 
     // 4. Update Bird Physics
     const gravity = 0.38;
-    this.bird.vy += gravity;
+    this.bird.vy += gravity * dtScale;
     if (this.bird.vy > 9.5) this.bird.vy = 9.5;
-    this.bird.y += this.bird.vy;
+    this.bird.y += this.bird.vy * dtScale;
 
     // Smooth rotation based on vertical velocity
     const targetRot = Math.max(-0.45, Math.min(0.65, this.bird.vy * 0.08));
-    this.bird.rotation += (targetRot - this.bird.rotation) * 0.2;
+    this.bird.rotation += (targetRot - this.bird.rotation) * rotBlend;
 
     // 5. Update Particles
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const p = this.particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.rotation += p.vRot;
-      p.life--;
-      if (p.life <= 0) {
-        this.particles.splice(i, 1);
-      }
-    }
+    this.updateParticles(dtScale);
 
     // 6. Spawn Pipes according to Pacing
-    this.spawnPipesIfNeeded(currentSpeed);
+    this.spawnPipesIfNeeded();
+
+    // Fade out open-runway warm-up cue smoothly as the first gate enters view
+    if (this.flight.score === 0 && this.pipes.length === 1) {
+      const firstPipeX = this.pipes[0].x;
+      const fadeStart = this.canvasWidth + 140;
+      const fadeEnd = this.canvasWidth - 40;
+      if (firstPipeX >= fadeStart) {
+        this.runwayIntroAlpha = 1;
+      } else if (firstPipeX <= fadeEnd) {
+        this.runwayIntroAlpha = 0;
+      } else {
+        this.runwayIntroAlpha = (firstPipeX - fadeEnd) / Math.max(1, fadeStart - fadeEnd);
+      }
+    } else {
+      this.runwayIntroAlpha = 0;
+    }
 
     // 7. Move & Check Pipes
     const floorY = this.canvasHeight - 44;
@@ -199,7 +280,7 @@ export class GameEngine {
 
     for (let i = this.pipes.length - 1; i >= 0; i--) {
       const pipe = this.pipes[i];
-      pipe.x -= currentSpeed;
+      pipe.x -= currentSpeed * dtScale;
 
       // Pipe passed / cleared?
       if (!pipe.cleared && (pipe.x + pipe.width) < (this.bird.x - this.bird.radius)) {
@@ -252,9 +333,22 @@ export class GameEngine {
     }
 
     // 9. Check Mid-Career Corporate Events
-    this.checkCorporateEvents();
+    this.checkCorporateEvents(dtScale);
 
     return 'RUNNING';
+  }
+
+  private updateParticles(dtScale: number): void {
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dtScale;
+      p.y += p.vy * dtScale;
+      p.rotation += p.vRot * dtScale;
+      p.life -= dtScale;
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+      }
+    }
   }
 
   private getSpeedForAge(age: number): number {
@@ -278,7 +372,7 @@ export class GameEngine {
     return 205;
   }
 
-  private spawnPipesIfNeeded(_speed: number): void {
+  private spawnPipesIfNeeded(): void {
     const baseSpacing = this.getSpacingForAge(this.flight.age);
     const baseGap = this.getGapForAge(this.flight.age);
 
@@ -298,9 +392,9 @@ export class GameEngine {
     const pipeWidth = this.canvasWidth > 0 && this.canvasWidth < 400 ? 62 : 72;
 
     const lastPipe = this.pipes[this.pipes.length - 1];
-    const rightEdge = lastPipe ? lastPipe.x : this.canvasWidth;
+    const isFirstPipe = !lastPipe;
 
-    if (!lastPipe || (this.canvasWidth + 60 - rightEdge) >= spacing) {
+    if (isFirstPipe || (this.canvasWidth + 60 - lastPipe.x) >= spacing) {
       const ring = Math.floor(this.flight.score / 15);
       const company = getCompanyForProgression(this.flight.score, this.flight.age, ring);
 
@@ -310,9 +404,14 @@ export class GameEngine {
       const topHeight = minTopHeight + Math.random() * (maxTopHeight - minTopHeight);
       const bottomY = topHeight + gap;
 
+      // Guarantee ~5.5s open-sky runway on smartphones while preserving desktop (e.g. 1440px) unchanged
+      const spawnX = isFirstPipe
+        ? Math.max(this.canvasWidth + 20, this.bird.x + GameEngine.MIN_FIRST_PIPE_DISTANCE_FROM_BIRD)
+        : this.canvasWidth + 20;
+
       this.pipes.push({
         id: this.nextPipeId++,
-        x: this.canvasWidth + 20,
+        x: spawnX,
         top: topHeight,
         bottom: bottomY,
         width: pipeWidth,
@@ -331,9 +430,9 @@ export class GameEngine {
     );
   }
 
-  private checkCorporateEvents(): void {
+  private checkCorporateEvents(dtScale: number): void {
     if (this.activeEvent) {
-      this.eventTimer--;
+      this.eventTimer -= dtScale;
       if (this.eventTimer <= 0) {
         this.activeEvent = null;
       }
@@ -346,7 +445,7 @@ export class GameEngine {
           this.flight.age <= evt.triggerAgeMax) {
         this.triggeredEventIds.add(evt.id);
         this.activeEvent = evt;
-        this.eventTimer = 220; // Visible for ~3.5 seconds
+        this.eventTimer = 220; // Visible for ~3.5 seconds at 60fps
         break;
       }
     }

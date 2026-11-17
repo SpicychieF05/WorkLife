@@ -172,7 +172,8 @@ export default function App() {
     const resolvedName = candidateName.trim() || (character === 'boy' ? 'Rahul Mukherjee' : 'Ananya Sen');
     const engine = new GameEngine(character, track, resolvedName, domain);
     if (canvas) {
-      engine.setDimensions(canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      engine.setDimensions(canvas.width / dpr, canvas.height / dpr);
     }
     engine.start();
     engineRef.current = engine;
@@ -327,7 +328,7 @@ export default function App() {
 
       // Update Physics when playing
       if (gameMode === 'PLAYING') {
-        const status = engine.update();
+        const status = engine.update(performance.now());
 
         // Sync React HUD state every ~100ms
         if (timestamp - lastSync > 90) {
@@ -361,7 +362,15 @@ export default function App() {
         character,
         pipes: engine.pipes,
         age: engine.flight.age,
-        particles: engine.particles
+        particles: engine.particles,
+        warmup:
+          gameMode === 'PLAYING'
+            ? {
+                controlTaken: engine.controlTaken,
+                hoverRemainingMs: engine.hoverRemainingMs,
+                runwayIntroAlpha: engine.runwayIntroAlpha
+              }
+            : undefined
       });
 
       animationFrameRef.current = requestAnimationFrame(loop);
