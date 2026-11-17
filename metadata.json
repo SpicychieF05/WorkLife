@@ -1,0 +1,6 @@
+{
+  "name": "WorkLife — Hire & Fire",
+  "description": "A satirical 75-second Indian IT career arcade game. Fly between company gates from campus placement to FAANG and face retirement at 60.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
