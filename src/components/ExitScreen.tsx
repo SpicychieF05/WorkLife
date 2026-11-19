@@ -1,12 +1,14 @@
 import React from 'react';
 import { FlightState } from '../types/game';
 import { formatPackage } from '../game/companies';
-import { RotateCcw, FileText, Award } from 'lucide-react';
+import { RotateCcw, FileText, Award, Mail } from 'lucide-react';
 import { CandidatePortraitSvg } from './CandidateVectorArt';
+import { buildScoreEmailHref } from '../game/shareEmail';
 
 interface ExitScreenProps {
   flight: FlightState;
   bestScore: number;
+  restartCooldownSec?: number;
   onRestart: () => void;
   onChangeTrack: () => void;
   onViewRelievingSlip: () => void;
@@ -15,10 +17,12 @@ interface ExitScreenProps {
 export const ExitScreen: React.FC<ExitScreenProps> = ({
   flight,
   bestScore,
+  restartCooldownSec = 0,
   onRestart,
   onChangeTrack,
   onViewRelievingSlip
 }) => {
+  const isRestartLocked = restartCooldownSec > 0;
   const isPipe = flight.cause === 'pipe';
   const isFloor = flight.cause === 'floor';
   const company = flight.crashedCompany || flight.currentCompany;
@@ -124,11 +128,22 @@ export const ExitScreen: React.FC<ExitScreenProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-col gap-2 mt-5 sm:mt-6 pt-4 border-t border-slate-200">
             <button
+              type="button"
               onClick={onRestart}
-              className="w-full min-h-[44px] py-3 px-4 rounded-xl bg-[#1e293b] text-white hover:bg-indigo-600 transition-colors font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              disabled={isRestartLocked}
+              aria-disabled={isRestartLocked}
+              className={`w-full min-h-[44px] py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors tabular-nums ${
+                isRestartLocked
+                  ? 'bg-slate-300 text-slate-600 cursor-not-allowed shadow-none'
+                  : 'bg-[#1e293b] text-white hover:bg-indigo-600 shadow-md cursor-pointer'
+              }`}
             >
               <RotateCcw size={15} />
-              <span>Start another career</span>
+              <span>
+                {isRestartLocked
+                  ? `Start another career (${restartCooldownSec}s)`
+                  : 'Start another career'}
+              </span>
             </button>
 
             <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2">
@@ -147,6 +162,14 @@ export const ExitScreen: React.FC<ExitScreenProps> = ({
                 Change Track
               </button>
             </div>
+
+            <a
+              href={buildScoreEmailHref(flight)}
+              className="w-full min-h-[42px] py-2.5 px-4 rounded-xl border border-emerald-200 bg-emerald-50/80 text-emerald-800 hover:bg-emerald-100 transition-colors font-semibold text-xs flex items-center justify-center gap-1.5"
+            >
+              <Mail size={14} />
+              <span>Email My Score to Chirantan</span>
+            </a>
           </div>
 
         </div>

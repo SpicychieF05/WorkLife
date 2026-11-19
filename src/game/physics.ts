@@ -108,7 +108,7 @@ export class GameEngine {
     this.hoverPausedElapsed = 0;
     this.careerPausedElapsed = 0;
     this.pauseTimestamp = 0;
-    this.lastFrameTime = now;
+    this.lastFrameTime = 0;
 
     this.controlTaken = false;
     this.hoverRemainingMs = GameEngine.HOVER_DURATION_MS;
@@ -144,7 +144,7 @@ export class GameEngine {
         this.careerPausedElapsed += delta;
       }
       this.pauseTimestamp = 0;
-      this.lastFrameTime = now;
+      this.lastFrameTime = 0;
       sound.startBed();
     }
   }
@@ -184,15 +184,24 @@ export class GameEngine {
     }
   }
 
-  public update(now: number = performance.now()): 'RUNNING' | 'EXIT' | 'RETIRED' {
+  public update(frameTimestamp: number = performance.now()): 'RUNNING' | 'EXIT' | 'RETIRED' {
     if (this.flight.cause) {
       return this.flight.cause === 'clock' ? 'RETIRED' : 'EXIT';
     }
 
-    // Delta-time normalization anchored to 60 FPS so 90Hz/120Hz phones match desktop cadence
-    const rawDtMs = this.lastFrameTime > 0 ? now - this.lastFrameTime : 16.6667;
-    this.lastFrameTime = now;
-    const dtMs = Math.max(4, Math.min(50, rawDtMs));
+    const now = performance.now();
+
+    // Vsync-locked delta-time anchored to 60 FPS with 60Hz jitter snap for silky jump motion
+    let dtMs = 16.6667;
+    if (this.lastFrameTime > 0) {
+      const rawDtMs = frameTimestamp - this.lastFrameTime;
+      if (rawDtMs >= 14.5 && rawDtMs <= 18.8) {
+        dtMs = 16.6667;
+      } else {
+        dtMs = Math.max(4, Math.min(50, rawDtMs));
+      }
+    }
+    this.lastFrameTime = frameTimestamp;
     const dtScale = dtMs / (1000 / 60);
     const rotBlend = 1 - Math.pow(1 - 0.2, dtScale);
 
@@ -238,7 +247,7 @@ export class GameEngine {
     const currentSpeed = this.getSpeedForAge(this.flight.age);
     this.scrollOffset += currentSpeed * dtScale;
 
-    // 4. Update Bird Physics
+    // 4. Update Bird Physics (original smooth flap arc & velocity tilt)
     const gravity = 0.38;
     this.bird.vy += gravity * dtScale;
     if (this.bird.vy > 9.5) this.bird.vy = 9.5;

@@ -73,6 +73,31 @@ export default function App() {
   const [showRelieving, setShowRelieving] = useState(false);
   const [showLogbook, setShowLogbook] = useState(false);
 
+  // 5-second restart lockout when Exit Interview Record appears
+  const exitLockUntilRef = useRef<number>(0);
+  const [exitRestartCooldownSec, setExitRestartCooldownSec] = useState<number>(0);
+
+  useEffect(() => {
+    if (gameMode !== 'EXIT') {
+      exitLockUntilRef.current = 0;
+      setExitRestartCooldownSec(0);
+      return;
+    }
+
+    const tick = () => {
+      const remainingMs = exitLockUntilRef.current - performance.now();
+      if (remainingMs <= 0) {
+        setExitRestartCooldownSec(0);
+      } else {
+        setExitRestartCooldownSec(Math.ceil(remainingMs / 1000));
+      }
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 100);
+    return () => window.clearInterval(intervalId);
+  }, [gameMode]);
+
   // Update localStorage when character or track changes
   const handleSelectCharacter = (c: Character) => {
     setCharacter(c);
@@ -167,6 +192,9 @@ export default function App() {
 
   // Start Career Run
   const handleStartGame = useCallback(() => {
+    if (gameMode === 'EXIT' && performance.now() < exitLockUntilRef.current) {
+      return;
+    }
     sound.unlock();
     const canvas = canvasRef.current;
     const resolvedName = candidateName.trim() || (character === 'boy' ? 'Rahul Mukherjee' : 'Ananya Sen');
@@ -177,11 +205,13 @@ export default function App() {
     }
     engine.start();
     engineRef.current = engine;
+    exitLockUntilRef.current = 0;
+    setExitRestartCooldownSec(0);
     setFlightState(engine.flight);
     setActiveEvent(null);
     setGameMode('PLAYING');
     setShowRelieving(false);
-  }, [character, track, candidateName, domain]);
+  }, [gameMode, character, track, candidateName, domain]);
 
   // Pause & Resume
   const handlePause = useCallback(() => {
@@ -202,6 +232,7 @@ export default function App() {
   const handleCanvasPointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
+    if (gameMode === 'EXIT') return;
     if (gameMode === 'PLAYING') {
       engineRef.current?.flap();
     } else if (gameMode === 'IDLE') {
@@ -219,12 +250,16 @@ export default function App() {
 
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
+        if (showRelieving || showLogbook) return;
         if (gameMode === 'PLAYING') {
           engineRef.current?.flap();
         } else if (gameMode === 'IDLE') {
+          if (!e.repeat) handleStartGame();
+        } else if (gameMode === 'EXIT') {
+          if (e.repeat || performance.now() < exitLockUntilRef.current) return;
           handleStartGame();
-        } else if (gameMode === 'EXIT' || gameMode === 'RETIRED') {
-          handleStartGame();
+        } else if (gameMode === 'RETIRED') {
+          if (!e.repeat) handleStartGame();
         }
       } else if (e.code === 'Escape' || e.code === 'KeyP') {
         e.preventDefault();
@@ -242,7 +277,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameMode, handleStartGame, handlePause, handleResume]);
+  }, [gameMode, showRelieving, showLogbook, handleStartGame, handlePause, handleResume]);
 
   // Auto-pause when window loses focus / tab changes during flight (PRD spec)
   useEffect(() => {
@@ -328,7 +363,7 @@ export default function App() {
 
       // Update Physics when playing
       if (gameMode === 'PLAYING') {
-        const status = engine.update(performance.now());
+        const status = engine.update(timestamp);
 
         // Sync React HUD state every ~100ms
         if (timestamp - lastSync > 90) {
@@ -339,6 +374,8 @@ export default function App() {
 
         if (status === 'EXIT') {
           sound.stopBed();
+          exitLockUntilRef.current = performance.now() + 5000;
+          setExitRestartCooldownSec(5);
           setFlightState({ ...engine.flight });
           setGameMode('EXIT');
           recordCareerEnd(engine.flight);
@@ -435,6 +472,7 @@ export default function App() {
           <ExitScreen
             flight={flightState}
             bestScore={bestScores[track] || 0}
+            restartCooldownSec={exitRestartCooldownSec}
             onRestart={handleStartGame}
             onChangeTrack={() => setGameMode('IDLE')}
             onViewRelievingSlip={() => setShowRelieving(true)}

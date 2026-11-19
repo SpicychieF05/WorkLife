@@ -1,7 +1,8 @@
 import React from 'react';
 import { FlightState } from '../types/game';
 import { formatPackage } from '../game/companies';
-import { RotateCcw, FileText, CheckCircle2 } from 'lucide-react';
+import { RotateCcw, FileText, CheckCircle2, Mail } from 'lucide-react';
+import { buildScoreEmailHref } from '../game/shareEmail';
 
 interface RetirementScreenProps {
   flight: FlightState;
@@ -98,6 +99,14 @@ export const RetirementScreen: React.FC<RetirementScreenProps> = ({
                 Change Track
               </button>
             </div>
+
+            <a
+              href={buildScoreEmailHref(flight)}
+              className="w-full min-h-[42px] py-2.5 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+            >
+              <Mail size={15} />
+              <span>Email My Score to Chirantan</span>
+            </a>
           </div>
 
         </div>
